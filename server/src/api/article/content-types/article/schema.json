@@ -77,6 +77,30 @@
       "relation": "manyToOne",
       "target": "api::location.location",
       "inversedBy": "articles"
+    },
+    "meta_title": {
+      "type": "string"
+    },
+    "meta_description": {
+      "type": "text"
+    },
+    "og_image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "canonical_url": {
+      "type": "string"
+    },
+    "views": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
     }
   }
 }

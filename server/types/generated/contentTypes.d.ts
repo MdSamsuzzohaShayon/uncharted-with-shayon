@@ -508,6 +508,7 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
   };
   attributes: {
     best_time: Schema.Attribute.String;
+    canonical_url: Schema.Attribute.String;
     categories: Schema.Attribute.Relation<
       'oneToMany',
       'api::category.category'
@@ -532,6 +533,12 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     location: Schema.Attribute.Relation<'manyToOne', 'api::location.location'>;
     map_lat: Schema.Attribute.Decimal;
     map_lng: Schema.Attribute.Decimal;
+    meta_description: Schema.Attribute.Text;
+    meta_title: Schema.Attribute.String;
+    og_image: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     published_date: Schema.Attribute.Date;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'title'>;
@@ -541,6 +548,14 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    views: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     youtube_url: Schema.Attribute.String;
   };
 }
