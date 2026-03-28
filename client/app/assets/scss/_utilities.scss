@@ -1,0 +1,104 @@
+@use 'variables' as *;
+@use 'mixins' as *;  // Add this line to import mixins
+
+// ============================================================
+// Utility Classes
+// ============================================================
+
+// Font Utilities
+.font-display {
+    @include font-display;
+}
+
+.font-body {
+    // @include font-body; // temp
+}
+
+// Text Utilities
+.line-clamp-1 {
+    @include text-truncate(1);
+}
+
+.line-clamp-2 {
+    @include text-truncate(2);
+}
+
+.line-clamp-3 {
+    @include text-truncate(3);
+}
+
+// Scrollbar Hide
+.scrollbar-hide {
+    @include hide-scrollbar;
+}
+
+// Accessibility
+:focus-visible {
+    // outline: 2px solid color('accent');  // temp
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+// Gradient Overlays (reusable)
+.gradient-overlay {
+    @include gradient-overlay(to bottom, 0.75, 0);
+}
+
+.gradient-overlay-light {
+    @include gradient-overlay(to top, 0.5, 0);
+}
+
+// Flex Utilities
+.flex-center {
+    @include flex-center;
+}
+
+.absolute-center {
+    @include absolute-center;
+}
+
+// Interactive Utilities
+.interactive-scale {
+    @include interactive-scale(1.05);
+}
+
+// Backdrop Utilities
+.backdrop-blur-sm {
+    @include backdrop-blur(8px);
+}
+
+.backdrop-blur-md {
+    @include backdrop-blur(12px);
+}
+
+.backdrop-blur-lg {
+    @include backdrop-blur(16px);
+}
+
+.backdrop-blur-xl {
+    @include backdrop-blur(24px);
+}
+
+// Transition Utilities (reusable classes)
+.transition-all {
+    @include transition((all), 'normal', 'default');
+}
+
+.transition-transform {
+    @include transition((transform), 'fast', 'default');
+}
+
+.transition-opacity {
+    @include transition((opacity), 'normal', 'default');
+}
+
+.transition-colors {
+    @include transition((color, background-color, border-color), 'fast', 'default');
+}
+
+// Loading States
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}

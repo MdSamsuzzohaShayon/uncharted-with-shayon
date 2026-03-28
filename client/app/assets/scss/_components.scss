@@ -1,0 +1,167 @@
+@use 'variables' as *;
+@use 'mixins' as *;  // Add this line to import mixins
+
+// ============================================================
+// Reusable Component Styles
+// ============================================================
+
+// Hero Background
+.hero-bg-image {
+    @include transition((opacity), 'hero', 'smooth');
+
+    &.is-fading {
+        opacity: 0;
+    }
+}
+
+// Floating Cards
+.float-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    @include transition((box-shadow), 'fast');
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(126, 200, 227, 0.35) 0%, transparent 70%);
+        opacity: 0;
+        @include transition((opacity), 'normal');
+        pointer-events: none;
+    }
+
+    &.is-active {
+        &::after {
+            opacity: 1;
+        }
+
+        // box-shadow: 0 0 0 2px color('accent'),
+        // 0 20px 60px rgba(0, 0, 0, 0.5),
+        // 0 0 40px rgba(126, 200, 227, 0.25); // temp
+    }
+
+    &:hover {
+        animation-play-state: paused;
+    }
+}
+
+// Floating Animation Classes
+.float-a {
+    @include floating-animation(float-a, 7s, 0s);
+}
+
+.float-b {
+    @include floating-animation(float-b, 8s, 1.2s);
+}
+
+.float-c {
+    @include floating-animation(float-c, 6.5s, 2.4s);
+}
+
+.float-d {
+    @include floating-animation(float-a, 9s, 0.6s);
+}
+
+// Search Overlay
+.search-overlay {
+    @include backdrop-blur(16px);
+    @include transition((opacity, visibility), 'normal', 'smooth');
+    position: fixed;
+    inset: 0;
+    z-index: z-index('modal');
+
+    &.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    &.is-visible {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+    }
+}
+
+.search-panel {
+    @include transition((transform, opacity), 'normal', 'bounce');
+
+    .is-hidden & {
+        transform: translateY(-24px) scale(0.97);
+        opacity: 0;
+    }
+
+    .is-visible & {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.search-input-wrapper {
+    position: relative;
+
+    &::after {
+        content: '';
+        display: block;
+        height: 2px;
+        // background: linear-gradient(90deg, color('accent'), color('accent-dark')); // temp
+        transform: scaleX(0);
+        transform-origin: left;
+        @include transition((transform), 'normal', 'smooth');
+        margin-top: -2px;
+    }
+
+    &:focus-within::after {
+        transform: scaleX(1);
+    }
+}
+
+.search-result-item {
+    @include transition((background, padding-left), 'fast');
+    cursor: pointer;
+
+    &:hover {
+        padding-left: 1.25rem;
+        background: rgba(126, 200, 227, 0.08);
+    }
+}
+
+// Marquee
+.marquee-track {
+    animation: marquee-scroll duration('marquee') linear infinite;
+
+    &:hover {
+        animation-play-state: paused;
+    }
+}
+
+// Category Buttons
+.cat-btn-active {
+    animation: pill-pulse 2.5s ease-in-out infinite;
+}
+
+// Card Ripple Effect (optional - for future use)
+.ripple {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s, opacity 0.6s;
+    }
+
+    &:active::after {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+    }
+}
