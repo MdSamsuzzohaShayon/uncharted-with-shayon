@@ -5,8 +5,8 @@
         <slot />
 
         <!-- ================================================================
-   NEWSLETTER CTA
-================================================================ -->
+            NEWSLETTER CTA
+            ================================================================ -->
         <section class="relative mx-6 md:mx-12 lg:mx-20 mb-20 rounded-3xl overflow-hidden"
             aria-labelledby="newsletter-heading">
             <img src="https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=1400&q=80"
@@ -38,8 +38,8 @@
 
 
         <!-- ================================================================
-   FOOTER
-================================================================ -->
+            FOOTER
+            ================================================================ -->
         <footer class="bg-[#1a1a1a] text-white px-6 md:px-12 lg:px-20 py-14">
             <div class="flex flex-col md:flex-row justify-between gap-10">
                 <div class="max-w-xs">
@@ -95,8 +95,8 @@
 <script setup lang="ts">
 
 // ── Newsletter ────────────────────────────────
-const emailInput = ref < string > ('');
-const subscribed = ref < boolean > (false);
+const emailInput = ref<string>('');
+const subscribed = ref<boolean>(false);
 
 
 function handleSubscribe() {

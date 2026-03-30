@@ -4,7 +4,7 @@
         v-bind:style="{height: cardHeight}" role="button" tabindex="0"
         aria-label="Nature travel — click to preview" @click="emit('setHeroBg', article.id)"
         @keydown.enter="emit('setHeroBg', article.id)">
-        <img v-bind:src="article.featured_image + '?w=400&q=80'"
+        <img v-bind:src="article.featured_image.url + '?w=400&q=80'"
             alt="Majestic mountain lake at sunset with alpine peaks"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" aria-hidden="true">

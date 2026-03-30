@@ -3,56 +3,63 @@ export const articlesData = [
         id: 1,
         category: "Nature",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+        featured_image: {url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 2,
         category: "Adventure",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1551632811-561732d1e306",
+        featured_image: {url: "https://images.unsplash.com/photo-1551632811-561732d1e306"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 3,
         category: "Culture",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1533105079780-92b9be482077",
+        featured_image: {url: "https://images.unsplash.com/photo-1533105079780-92b9be482077"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 4,
         category: "Geography",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
+        featured_image: {url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 5,
         category: "History",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1664095163365-409ae33fce5c",
+        featured_image: {url: "https://images.unsplash.com/photo-1664095163365-409ae33fce5c"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 6,
         category: "Archeology",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1670006589700-0b557c00e609",
+        featured_image: {url: "https://images.unsplash.com/photo-1670006589700-0b557c00e609"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
     {
         id: 7,
         category: "Festivals",
         title: "This is title",
-        featured_image: "https://images.unsplash.com/photo-1683828936817-3f2c6c856d6d",
+        featured_image: {url: "https://images.unsplash.com/photo-1683828936817-3f2c6c856d6d"},
         slug: "a-new-title",
-        description: "desc-1"
+        description: "desc-1",
+        published_date: new Date().toISOString(),
     },
 ]

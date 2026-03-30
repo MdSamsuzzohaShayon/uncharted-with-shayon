@@ -4,6 +4,7 @@
            HERO SECTION
       ================================================================ -->
         <header>
+            <!-- // relative mx-6 md:mx-12 lg:mx-20 mb-20 rounded-3xl overflow-hidden -->
             <section class="relative min-h-screen flex flex-col overflow-hidden" aria-label="Hero">
 
                 <!-- Background image with cross-fade -->
@@ -124,79 +125,64 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <article
+                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle.slug"
                     class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
+
                     <div class="relative h-72 md:h-80 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80"
-                            alt="Pristine turquoise waters of the Maldives with overwater bungalows"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            loading="lazy" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
-                            aria-hidden="true">
-                        </div>
+                        <NuxtImg format="webp" loading="lazy" fetchpriority="low"
+                            :src="firstArticle?.featured_image?.url || '/imgs/no-image.jpg'" :alt="firstArticle.title"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+
                         <span
-                            class="absolute top-4 left-4 bg-[#7ec8e3] text-[#1a1a1a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">Beach</span>
+                            class="absolute top-4 left-4 bg-[#7ec8e3] text-[#1a1a1a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+                            {{ firstArticle.category }}
+                        </span>
                     </div>
+
                     <div class="p-6">
                         <div class="flex items-center gap-3 mb-3">
-                            <time datetime="2025-03-12" class="text-[#555555] text-xs">March 12, 2025</time>
-                            <span class="w-1 h-1 rounded-full bg-[#e5e7eb]" aria-hidden="true"></span>
-                            <span class="text-[#555555] text-xs">8 min read</span>
+                            <time class="text-[#555555] text-xs">
+                                {{ firstArticle.published_date }}
+                            </time>
                         </div>
+
                         <h3
                             class="font-display font-bold text-[#1a1a1a] text-xl md:text-2xl leading-snug mb-3 group-hover:text-[#1a4a6b] transition-colors duration-300">
-                            Lost in Paradise: 10 Days in the Maldives on a Budget
+                            {{ firstArticle.title }}
                         </h3>
+
                         <p class="text-[#555555] text-sm leading-relaxed line-clamp-2">
-                            Turquoise lagoons, overwater bungalows, and reef sharks — here's how I did it all without
-                            breaking the
-                            bank.
+                            {{ firstArticle.description }}
                         </p>
-                        <div class="flex items-center justify-between mt-5">
-                            <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-[#7ec8e3] to-[#1a4a6b] flex items-center justify-center text-white text-xs font-bold"
-                                    aria-hidden="true">S</div>
-                                <span class="text-[#555555] text-xs font-medium">Shayon</span>
-                            </div>
-                            <span
-                                class="text-[#1a4a6b] text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all duration-200">
-                                Read More
-                                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
-                                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                                    aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </span>
-                        </div>
                     </div>
-                </article>
+                </NuxtLink>
 
                 <div class="flex flex-col gap-6">
-                    <article v-for="post in smallPosts" :key="post.title"
+                    <article v-for="article in nextTwoArticles" :key="article.id"
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
+
                         <div class="relative h-44 overflow-hidden">
-                            <img :src="post.img" :alt="post.imgAlt"
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                loading="lazy" />
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"
-                                aria-hidden="true"></div>
+                            <NuxtImg :src="article?.featured_image?.url || '/imgs/no-image.jpg'" format="webp"
+                                loading="lazy" fetchpriority="low" :alt="article.title"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
                             <span
-                                class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">{{
-                                    post.category }}</span>
+                                class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                {{ article.category }}
+                            </span>
                         </div>
+
                         <div class="p-4 flex-1 flex flex-col">
-                            <time :datetime="post.datetime" class="text-[#555555] text-xs mb-1.5">{{ post.date }}</time>
+                            <time class="text-[#555555] text-xs mb-1.5">
+                                {{ article.published_date }}
+                            </time>
+
                             <h3
                                 class="font-display font-bold text-[#1a1a1a] text-base leading-snug group-hover:text-[#1a4a6b] transition-colors duration-300 flex-1">
-                                {{ post.title }}</h3>
-                            <div class="flex items-center justify-between mt-3 pt-3 border-t border-[#e5e7eb]">
-                                <span class="text-[#555555] text-xs">{{ post.readTime }}</span>
-                                <svg class="w-4 h-4 text-[#1a4a6b] transition-transform duration-200 group-hover:translate-x-1"
-                                    fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                                    aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
+                                {{ article.title }}
+                            </h3>
                         </div>
                     </article>
                 </div>
@@ -271,7 +257,7 @@ useHead({
         { name: 'twitter:title', content: 'Uncharted with Shayon' },
         { name: 'twitter:description', content: 'Unscripted journeys, raw landscapes, travel stories.' },
     ],
-    link: [{ rel: 'canonical', href: 'https://unchartedwithshayon.com/' }]
+    link: [{ rel: 'canonical', href: 'https://uncharted.webdevlab.org' }]
 })
 
 // ── Search ────────────────────────────────────
@@ -279,7 +265,7 @@ useHead({
 
 const searchInputRef = ref(null);
 const featureArticles = ref<IArticle[]>(articlesData);
-const defaultBg = ref<string>(articlesData[0]?.featured_image || "");
+const defaultBg = ref<string>(articlesData[0]?.featured_image.url || "");
 
 
 
@@ -302,7 +288,7 @@ function setHeroBg(articleId: number) {
 
     const bgArticle = featureArticles.value.find((a) => a.id === articleId);
     if (bgArticle) {
-        crossFadeBg(bgArticle.featured_image);
+        crossFadeBg(bgArticle.featured_image.url);
     }
 }
 function crossFadeBg(src: string) {
@@ -338,6 +324,33 @@ const galleryPhotos = [
     { src: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80', alt: 'Misty forest trail in the Pacific Northwest', span: 'col-span-1 row-span-1' },
     { src: 'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80', alt: 'Aurora borealis over an Icelandic snowscape', span: 'col-span-2 row-span-1' },
 ]
+
+// Fetch Latest 3 Articles (with caching)
+const config = useRuntimeConfig()
+
+const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
+    "latest-articles", // ✅ cache key (important)
+    async () => {
+        return await $fetch(`${config.public.apiBase}/api/articles`, {
+            params: {
+                sort: ["published_date:desc"], // latest first
+                pagination: { limit: 3 }, // only 3 posts
+                populate: ["featured_image",
+                    // "category"
+                ],
+            },
+        })
+    }
+)
+
+const firstArticle = computed(() => {
+    return latestArticles.value?.data?.[0] ?? null
+})
+
+const nextTwoArticles = computed(() => {
+    return latestArticles.value?.data?.slice(1, 3) ?? []
+})
+
 
 
 </script>
