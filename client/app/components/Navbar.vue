@@ -1,6 +1,5 @@
 <template>
     <div>
-
         <!-- ====== NAVBAR ====== -->
         <nav class="relative z-20 flex items-center justify-between px-6 md:px-12 lg:px-20 py-6"
             aria-label="Main navigation">
@@ -15,7 +14,7 @@
                 <NuxtLink href="/" aria-current="page"
                     class="px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm text-white text-sm font-medium border border-white/20 transition-all duration-300 hover:bg-white/25">
                     Home</NuxtLink>
-                <NuxtLink href="/destinations"
+                <NuxtLink href="/destination"
                     class="px-4 py-2 rounded-full text-white/80 text-sm font-medium hover:text-white hover:bg-white/10 transition-all duration-300 flex items-center gap-1">
                     Destinations
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
@@ -23,9 +22,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                 </NuxtLink>
-                <NuxtLink href="/stories"
+                <NuxtLink href="/gallery"
                     class="px-4 py-2 rounded-full text-white/80 text-sm font-medium hover:text-white hover:bg-white/10 transition-all duration-300">
-                    Stories</NuxtLink>
+                    Gallery</NuxtLink>
                 <NuxtLink href="/about"
                     class="px-4 py-2 rounded-full text-white/80 text-sm font-medium hover:text-white hover:bg-white/10 transition-all duration-300">
                     About</NuxtLink>

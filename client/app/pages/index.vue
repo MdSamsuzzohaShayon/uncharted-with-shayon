@@ -354,8 +354,6 @@ const nextTwoArticles = computed(() => {
 })
 
 
-console.log({firstArticle: firstArticle.value});
-
 
 
 </script>

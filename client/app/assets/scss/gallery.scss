@@ -1,0 +1,325 @@
+// ============================================================
+// gallery.scss — Gallery Page Specific Styles
+// ============================================================
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ============================================================
+// Masonry Grid Layout
+// ============================================================
+.masonry-grid {
+    column-count: 1;
+    column-gap: 1.5rem;
+    
+    @include respond-to('sm') {
+        column-count: 2;
+    }
+    
+    @include respond-to('lg') {
+        column-count: 3;
+    }
+    
+    @include respond-to('xl') {
+        column-count: 4;
+    }
+}
+
+.masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    
+    img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    &.masonry-item-large {
+        @include respond-to('lg') {
+            transform: scale(1.05);
+        }
+    }
+}
+
+// ============================================================
+// Gallery Item Hover Effects
+// ============================================================
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(126, 200, 227, 0.2) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    &:hover::before {
+        opacity: 1;
+    }
+}
+
+// ============================================================
+// Lightbox Modal
+// ============================================================
+.lightbox-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.lightbox-image {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    
+    &:hover {
+        background: rgba(126, 200, 227, 0.2);
+        transform: scale(1.05);
+    }
+    
+    @include respond-to('md') {
+        top: 1rem;
+        right: 1rem;
+    }
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    
+    &:hover {
+        background: rgba(126, 200, 227, 0.2);
+        transform: translateY(-50%) scale(1.05);
+    }
+}
+
+.lightbox-nav-prev {
+    left: 1rem;
+}
+
+.lightbox-nav-next {
+    right: 1rem;
+}
+
+.lightbox-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+    border-radius: 0 0 0.5rem 0.5rem;
+    
+    @include respond-to('md') {
+        bottom: 1rem;
+        left: 1rem;
+        right: auto;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        text-align: left;
+    }
+}
+
+// ============================================================
+// Stat Cards Animation
+// ============================================================
+.stat-card {
+    position: relative;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+        
+        &::after {
+            width: 50px;
+        }
+    }
+    
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: #7ec8e3;
+        transition: width 0.3s ease;
+    }
+}
+
+// ============================================================
+// Filter Bar Scrollbar
+// ============================================================
+.scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+// ============================================================
+// Text Utilities
+// ============================================================
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+// ============================================================
+// Loading Animation
+// ============================================================
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+// ============================================================
+// Responsive Adjustments
+// ============================================================
+@media (max-width: 768px) {
+    .lightbox-nav {
+        padding: 0.5rem;
+        
+        svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    }
+    
+    .lightbox-info {
+        h3 {
+            font-size: 1rem;
+        }
+        
+        p {
+            font-size: 0.75rem;
+        }
+    }
+}
+
+// ============================================================
+// Gallery Item Transition
+// ============================================================
+.gallery-item,
+.masonry-item {
+    will-change: transform;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ============================================================
+// Custom Scrollbar for Gallery
+// ============================================================
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #7ec8e3;
+    border-radius: 10px;
+    
+    &:hover {
+        background: #1a4a6b;
+    }
+}

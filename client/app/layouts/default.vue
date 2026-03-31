@@ -109,9 +109,9 @@ function handleSubscribe() {
 // ── Footer ────────────────────────────────────
 const footerLinks = [
     { label: 'Destinations', href: '/destinations' },
-    { label: 'Stories', href: '/stories' },
-    { label: 'Photo Journal', href: '/journal' },
-    { label: 'Travel Guides', href: '/guides' },
+    { label: 'Category', href: '/stories' },
+    { label: 'Gallery', href: '/journal' },
+    { label: 'Articles', href: '/articles' },
     { label: 'About', href: '/about' },
 ]
 const socials = [

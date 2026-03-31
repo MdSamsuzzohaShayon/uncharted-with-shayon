@@ -1,294 +1,299 @@
 <template>
     <div class="single-article min-h-screen bg-[#f9fafc] font-body overflow-x-hidden">
         <!-- Loading State -->
-        <div v-if="pending" class="loading-state fixed inset-0 z-50 bg-[#f9fafc] flex items-center justify-center">
-            <div class="text-center">
-                <div class="loading-spinner mx-auto mb-6"></div>
-                <p class="text-[#1a4a6b] font-medium animate-pulse">Loading your adventure...</p>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div v-else-if="error" class="flex items-center justify-center min-h-screen px-6">
-            <div class="text-center max-w-md">
-                <div class="error-icon w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center shadow-lg">
-                    <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-display font-bold text-[#1a1a1a] mb-4">Article Not Found</h2>
-                <p class="text-[#555555] mb-8 leading-relaxed">
-                    {{ error.message || "The adventure you're looking for doesn't exist or has been moved." }}
-                </p>
-                <NuxtLink to="/"
-                    class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b] hover:from-[#5bb8d4] hover:to-[#0f2a3f] text-white font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    Back to Home
-                </NuxtLink>
-            </div>
-        </div>
+        <Loader v-if="pending" />
+        <Error v-else-if="error" v-bind:error="error" />
 
         <!-- Article Content -->
         <article v-else-if="article" class="article-container">
-            <!-- Hero Section with Parallax Effect -->
-            <header class="article-hero relative min-h-[90vh] flex flex-col overflow-hidden">
-                <div class="absolute inset-0 z-0">
-                    <div class="absolute inset-0 bg-black/50 z-10"></div>
-                    <img :src="article.og_image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=85'"
-                        :alt="article.title" 
-                        class="article-hero-image w-full h-full object-cover transform scale-105"
-                        fetchpriority="high">
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#f9fafc] via-[#1a4a6b]/30 to-transparent z-20"></div>
+            
+            <!-- Premium Reading Progress Bar -->
+            <div class="reading-progress-bar fixed top-0 left-0 right-0 h-1.5 z-50">
+                <div class="h-full bg-gradient-to-r from-[#7ec8e3] via-[#1a4a6b] to-[#7ec8e3] transition-all duration-100 relative" :style="{ width: `${readingProgress * 100}%` }">
+                    <div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-[#7ec8e3] shadow-lg"></div>
+                </div>
+            </div>
+
+            <!-- Hero Section - Cinematic Experience -->
+            <header class="hero-section relative min-h-screen overflow-hidden">
+                
+                <!-- Background Layers with Parallax -->
+                <div class="hero-bg absolute inset-0 z-0">
+                    <div class="absolute inset-0 overflow-hidden">
+                        <!-- Main Background Image -->
+                        <img 
+                            :src="heroBackgroundImage"
+                            :alt="article.title"
+                            class="hero-image w-full h-full object-cover"
+                            ref="heroImage"
+                            fetchpriority="high"
+                        >
+                        
+                        <!-- Gradient Overlays for Depth -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/50 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#f9fafc] via-transparent to-transparent"></div>
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]"></div>
+                    </div>
                 </div>
 
+                <!-- Animated Particle Field -->
+                <canvas ref="particleCanvas" class="absolute inset-0 z-10 pointer-events-none"></canvas>
 
-                <!-- Hero Content -->
-                <div class="relative z-20 flex-1 flex items-center justify-center px-6 md:px-12 lg:px-20 pb-32 pt-20">
-                    <div class="hero-content max-w-4xl mx-auto text-center">
-                        <div class="hero-meta inline-flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-8">
-                            <time :datetime="article.published_date" class="text-white text-sm flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                {{ formatDate(article.published_date) }}
-                            </time>
-                            <span class="w-1 h-1 rounded-full bg-white/60"></span>
-                            <span class="text-white text-sm flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
-                                {{ formatNumber(article.views) }} views
-                            </span>
+                <!-- Dynamic Abstract Shapes -->
+                <div class="hero-shapes absolute inset-0 z-10 pointer-events-none">
+                    <div class="shape shape-1 absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-[#7ec8e3]/20 to-transparent rounded-full blur-3xl animate-float-slow"></div>
+                    <div class="shape shape-2 absolute bottom-40 left-20 w-128 h-128 bg-gradient-to-l from-[#1a4a6b]/20 to-transparent rounded-full blur-3xl animate-float-slower"></div>
+                    <div class="shape shape-3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-2xl animate-pulse-gentle"></div>
+                    
+                    <!-- Animated Dots Pattern -->
+                    <svg class="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="dots-pattern" patternUnits="userSpaceOnUse" width="40" height="40">
+                                <circle cx="20" cy="20" r="1.5" fill="white" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#dots-pattern)" />
+                    </svg>
+                </div>
+
+                <!-- Hero Content Container -->
+                <div class="hero-content relative z-20 min-h-screen flex items-center justify-center px-6 md:px-12 lg:px-20">
+                    <div class="max-w-7xl mx-auto w-full">
+                        
+                        <!-- Category Tags - Premium Badges -->
+                        <div class="category-container mb-6 text-center animate-fade-up">
+                            <div class="inline-flex flex-wrap gap-3 justify-center">
+                                <NuxtLink 
+                                    v-for="cat in article.category" 
+                                    :key="cat.id"
+                                    :to="`/category/${cat.slug}`"
+                                    class="category-tag group relative px-5 py-2 rounded-full text-sm font-medium transition-all duration-500 hover:scale-105"
+                                >
+                                    <span class="relative z-10">{{ cat.name }}</span>
+                                    <div class="absolute inset-0 rounded-full bg-white/10 backdrop-blur-sm group-hover:bg-gradient-to-r group-hover:from-[#7ec8e3] group-hover:to-[#1a4a6b] transition-all duration-500"></div>
+                                    <div class="absolute inset-0 rounded-full bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md"></div>
+                                </NuxtLink>
+                            </div>
                         </div>
-                        <h1 class="hero-title font-display font-black text-white text-5xl md:text-7xl lg:text-8xl leading-tight mb-6">
-                            {{ article.title }}
-                        </h1>
-                        <p class="hero-description text-white/90 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
-                            {{ article.description }}
-                        </p>
-                        <div class="hero-scroll-indicator mt-16">
-                            <div class="w-6 h-10 border-2 border-white/40 rounded-full mx-auto flex justify-center">
-                                <div class="w-1 h-2 bg-white/60 rounded-full mt-2 animate-bounce"></div>
+
+                        <!-- Article Title with Split Text Effect -->
+                        <div class="title-container text-center mb-8">
+                            <h1 class="article-title font-display font-black text-white leading-[1.1] tracking-tighter">
+                                <span class="block text-5xl md:text-7xl lg:text-8xl xl:text-9xl animate-title-reveal">
+                                    {{ article.title }}
+                                </span>
+                            </h1>
+                            <p class="article-description text-white/80 text-lg md:text-xl max-w-3xl mx-auto mt-6 leading-relaxed animate-fade-up animation-delay-200">
+                                {{ article.description }}
+                            </p>
+                        </div>
+
+                        <!-- Location Badge with Map Preview -->
+                        <div class="location-wrapper mb-8 text-center animate-fade-up animation-delay-300">
+                            <div class="location-badge-container relative inline-block">
+                                <button 
+                                    class="location-trigger group flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 transition-all duration-500 border border-white/20"
+                                    @mouseenter="showMapPreview = true"
+                                    @mouseleave="showMapPreview = false"
+                                >
+                                    <svg class="w-5 h-5 text-[#7ec8e3] group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    <span class="text-white text-base font-medium">{{ article.location }}</span>
+                                    <svg class="w-4 h-4 text-white/60 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                                
+                                <!-- Premium Map Preview Card -->
+                                <Transition name="map-preview">
+                                    <div v-if="article.map_lat && article.map_lng && showMapPreview" class="map-preview-card absolute bottom-full left-1/2 transform -translate-x-1/2 mb-4 w-80 rounded-2xl overflow-hidden shadow-2xl z-50">
+                                        <div class="bg-white p-2">
+                                            <ClientOnly>
+                                                <div ref="previewMapContainer" class="w-full h-48 rounded-lg"></div>
+                                            </ClientOnly>
+                                            <div class="p-3 text-center border-t border-gray-100">
+                                                <p class="text-xs font-medium text-[#1a4a6b]">{{ article.location }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="map-preview-arrow"></div>
+                                    </div>
+                                </Transition>
+                            </div>
+                        </div>
+
+                        <!-- YouTube Teaser Card -->
+                        <div v-if="article.youtube_url" class="youtube-teaser max-w-3xl mx-auto mb-10 animate-fade-up animation-delay-400">
+                            <div class="relative rounded-2xl overflow-hidden cursor-pointer group shadow-2xl" @click="showVideoModal = true">
+                                <img 
+                                    :src="`https://img.youtube.com/vi/${getYouTubeId(article.youtube_url)}/maxresdefault.jpg`"
+                                    :alt="`Watch video: ${article.title}`"
+                                    class="w-full h-64 md:h-80 object-cover transition-transform duration-1000 group-hover:scale-110"
+                                >
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="play-button w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b] flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all duration-500 group-hover:shadow-[0_0_30px_rgba(126,200,227,0.5)]">
+                                        <svg class="w-10 h-10 md:w-12 md:h-12 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md rounded-full px-4 py-2">
+                                    <span class="text-white text-sm font-medium flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"></path>
+                                        </svg>
+                                        Watch the story
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Premium Stats Dashboard -->
+                        <div class="stats-dashboard max-w-5xl mx-auto animate-fade-up animation-delay-500">
+                            <div class="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-6 md:p-8 shadow-2xl">
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+                                    
+                                    <!-- Views Card with Animated Counter -->
+                                    <div class="stat-premium text-center group cursor-pointer">
+                                        <div class="stat-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                                            <svg class="w-7 h-7 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value text-2xl md:text-3xl font-bold text-white">
+                                            <CountUp :end="article.views" :duration="2.5" :suffix="article.views >= 1000 ? '+' : ''" />
+                                        </div>
+                                        <div class="stat-label text-xs text-white/50 uppercase tracking-wider mt-1">Total Views</div>
+                                    </div>
+
+                                    <!-- Date Card -->
+                                    <div class="stat-premium text-center group cursor-pointer">
+                                        <div class="stat-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                                            <svg class="w-7 h-7 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value text-sm md:text-base font-bold text-white">{{ formatDate(article.published_date) }}</div>
+                                        <div class="stat-label text-xs text-white/50 uppercase tracking-wider mt-1">Published</div>
+                                    </div>
+
+                                    <!-- Travel Cost Card -->
+                                    <div v-if="article.travel_cost" class="stat-premium text-center group cursor-pointer">
+                                        <div class="stat-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                                            <svg class="w-7 h-7 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value text-sm md:text-base font-bold text-white">{{ article.travel_cost }}</div>
+                                        <div class="stat-label text-xs text-white/50 uppercase tracking-wider mt-1">Travel Cost</div>
+                                    </div>
+
+                                    <!-- Best Time Card -->
+                                    <div v-if="article.best_time" class="stat-premium text-center group cursor-pointer">
+                                        <div class="stat-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                                            <svg class="w-7 h-7 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value text-sm md:text-base font-bold text-white">{{ article.best_time }}</div>
+                                        <div class="stat-label text-xs text-white/50 uppercase tracking-wider mt-1">Best Time</div>
+                                    </div>
+
+                                    <!-- Reading Time Card -->
+                                    <div class="stat-premium text-center group cursor-pointer">
+                                        <div class="stat-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                                            <svg class="w-7 h-7 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value text-2xl md:text-3xl font-bold text-white">{{ calculateReadingTime(article.description) }}</div>
+                                        <div class="stat-label text-xs text-white/50 uppercase tracking-wider mt-1">Minutes Read</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Author Card with Social Links -->
+                        <div class="author-card max-w-md mx-auto mt-10 animate-fade-up animation-delay-600">
+                            <div class="relative group">
+                                <div class="absolute inset-0 bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b] rounded-2xl blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500"></div>
+                                <div class="relative bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20 hover:border-[#7ec8e3]/50 transition-all duration-500">
+                                    <div class="flex items-center gap-4">
+                                        <!-- Avatar -->
+                                        <div class="author-avatar w-16 h-16 rounded-full bg-gradient-to-br from-[#7ec8e3] to-[#1a4a6b] p-0.5">
+                                            <div class="w-full h-full rounded-full bg-[#1a1a1a] flex items-center justify-center">
+                                                <span class="text-white font-bold text-2xl">S</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Author Info -->
+                                        <div class="flex-1">
+                                            <p class="text-white/60 text-xs uppercase tracking-wider">Written by</p>
+                                            <p class="text-white text-xl font-display font-bold">Shayon</p>
+                                            <p class="text-white/40 text-xs">Adventure Storyteller</p>
+                                        </div>
+                                        
+                                        <!-- Social Links -->
+                                        <div class="flex gap-2">
+                                            <a href="#" class="social-link w-10 h-10 rounded-full bg-white/10 hover:bg-[#1da1f2] flex items-center justify-center transition-all duration-300 hover:scale-110" aria-label="Twitter">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.104c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 0021.677-11.855c0-.21-.005-.423-.015-.635A9.936 9.936 0 0024 4.59z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="#" class="social-link w-10 h-10 rounded-full bg-white/10 hover:bg-[#e4405f] flex items-center justify-center transition-all duration-300 hover:scale-110" aria-label="Instagram">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.336 3.608 1.311.975.975 1.249 2.242 1.311 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.336 2.633-1.311 3.608-.975.975-2.242 1.249-3.608 1.311-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.336-3.608-1.311-.975-.975-1.249-2.242-1.311-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.336-2.633 1.311-3.608.975-.975 2.242-1.249 3.608-1.311 1.266-.058 1.646-.07 4.85-.07zM12 7.376c-2.55 0-4.624 2.074-4.624 4.624 0 2.55 2.074 4.624 4.624 4.624 2.55 0 4.624-2.074 4.624-4.624 0-2.55-2.074-4.624-4.624-4.624zm0 7.623c-1.656 0-3-1.344-3-3s1.344-3 3-3 3 1.344 3 3-1.344 3-3 3z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="#" class="social-link w-10 h-10 rounded-full bg-white/10 hover:bg-[#ff0000] flex items-center justify-center transition-all duration-300 hover:scale-110" aria-label="YouTube">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Scroll Hint -->
+                        <div class="scroll-hint text-center mt-12 animate-bounce">
+                            <div class="inline-flex flex-col items-center gap-2 text-white/40 text-xs">
+                                <span>Scroll to explore the journey</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7m14-6l-7 7-7-7"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- Article Content Section - Redesigned -->
-            <div class="article-content-wrapper relative -mt-20 z-20 px-6 md:px-12 lg:px-20 pb-20">
-                <div class="max-w-7xl mx-auto">
-                    <!-- Floating Info Cards -->
-                    <div class="info-cards-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                        <div class="info-card group bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                            <div class="info-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-7 h-7 text-[#1a4a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs text-[#7ec8e3] font-semibold uppercase tracking-wider mb-2">Location</p>
-                            <p class="text-base font-bold text-[#1a1a1a]">{{ article.location }}</p>
-                        </div>
-
-                        <div v-if="article.travel_cost" class="info-card group bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                            <div class="info-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-7 h-7 text-[#1a4a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs text-[#7ec8e3] font-semibold uppercase tracking-wider mb-2">Travel Cost</p>
-                            <p class="text-base font-bold text-[#1a1a1a]">{{ article.travel_cost }}</p>
-                        </div>
-
-                        <div v-if="article.best_time" class="info-card group bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                            <div class="info-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-7 h-7 text-[#1a4a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs text-[#7ec8e3] font-semibold uppercase tracking-wider mb-2">Best Time to Visit</p>
-                            <p class="text-base font-bold text-[#1a1a1a]">{{ article.best_time }}</p>
-                        </div>
-
-                        <div class="info-card group bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                            <div class="info-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7ec8e3]/20 to-[#1a4a6b]/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-7 h-7 text-[#1a4a6b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-xs text-[#7ec8e3] font-semibold uppercase tracking-wider mb-2">Reading Time</p>
-                            <p class="text-base font-bold text-[#1a1a1a]">{{ calculateReadingTime(article.description) }} min</p>
-                        </div>
-                    </div>
-
-                    <!-- YouTube Video Section with Enhanced Design -->
-                    <div v-if="article?.youtube_url" class="video-section mb-20">
-                        <div class="relative rounded-3xl overflow-hidden shadow-2xl group">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-[#1a4a6b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
-                            <div class="video-wrapper relative" style="padding-bottom: 56.25%;">
-                                <iframe :src="getYouTubeEmbedUrl(article.youtube_url)"
-                                    class="absolute inset-0 w-full h-full"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen 
-                                    loading="lazy" 
-                                    :title="`Video: ${article.title}`">
-                                </iframe>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Description Section with Beautiful Typography -->
-                    <div class="description-section mb-20">
-                        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
-                            <div class="h-2 bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b]"></div>
-                            <div class="p-8 md:p-12">
-                                <div class="flex items-center gap-3 mb-8">
-                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7ec8e3] to-[#1a4a6b] flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path>
-                                        </svg>
-                                    </div>
-                                    <h2 class="font-display font-bold text-3xl md:text-4xl text-[#1a1a1a]">Journey Details</h2>
-                                </div>
-                                <div class="prose prose-lg max-w-none">
-                                    <p class="text-[#555555] leading-relaxed text-lg first-letter:text-5xl first-letter:font-bold first-letter:text-[#7ec8e3] first-letter:mr-3 first-letter:float-left">
-                                        {{ article.description }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Stunning Gallery Section with Masonry Layout -->
-                    <div class="gallery-section mb-20">
-                        <div class="text-center mb-12">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-[#7ec8e3]/10 to-[#1a4a6b]/10 rounded-full px-6 py-2 mb-4">
-                                <div class="w-2 h-2 rounded-full bg-[#7ec8e3] animate-pulse"></div>
-                                <span class="text-xs font-semibold tracking-wider text-[#1a4a6b] uppercase">Visual Story</span>
-                            </div>
-                            <h2 class="font-display font-bold text-4xl md:text-5xl text-[#1a1a1a] mb-4">Photo Gallery</h2>
-                            <p class="text-[#555555] max-w-2xl mx-auto">Experience the journey through these captivating moments</p>
-                        </div>
-                        
-                        <div class="gallery-masonry">
-                            <div class="gallery-grid columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-                                <div v-for="(image, index) in galleryImages" :key="index"
-                                    class="gallery-item break-inside-avoid relative rounded-2xl overflow-hidden cursor-pointer group transform hover:-translate-y-2 transition-all duration-500"
-                                    @click="openLightbox(index)">
-                                    <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                                        <img :src="image" 
-                                            :alt="`${article.title} - Gallery image ${index + 1}`"
-                                            class="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
-                                            loading="lazy">
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
-                                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                                <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-white/30 transition-all">
-                                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                            <p class="text-white text-sm font-medium">View image {{ index + 1 }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Map Section with Fixed Geoapify Integration -->
-                    <div v-if="article.map_lat && article.map_lng" class="map-section mb-20">
-                        <div class="text-center mb-12">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-[#7ec8e3]/10 to-[#1a4a6b]/10 rounded-full px-6 py-2 mb-4">
-                                <svg class="w-4 h-4 text-[#7ec8e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <span class="text-xs font-semibold tracking-wider text-[#1a4a6b] uppercase">Explore Location</span>
-                            </div>
-                            <h2 class="font-display font-bold text-4xl md:text-5xl text-[#1a1a1a] mb-4">Journey Map</h2>
-                            <p class="text-[#555555] max-w-2xl mx-auto">Discover exactly where this adventure took place</p>
-                        </div>
-                        <div class="map-container rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                            <ClientOnly>
-                                <div ref="mapContainer" class="w-full h-[500px] bg-[#e5e7eb]"></div>
-                                <template #fallback>
-                                    <div class="w-full h-[500px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                        <div class="text-center">
-                                            <div class="loading-spinner-small mx-auto mb-4"></div>
-                                            <p class="text-[#555555]">Loading interactive map...</p>
-                                        </div>
-                                    </div>
-                                </template>
-                            </ClientOnly>
-                        </div>
-                    </div>
-
-                    <!-- Share Section with Social Links -->
-                    <div class="share-section bg-gradient-to-r from-[#7ec8e3]/5 to-[#1a4a6b]/5 rounded-3xl p-8 md:p-12 text-center">
-                        <p class="text-[#1a4a6b] text-sm font-semibold uppercase tracking-wider mb-4">Share the Inspiration</p>
-                        <div class="flex gap-4 justify-center flex-wrap">
-                            <button @click="shareOnTwitter" class="share-btn group relative w-12 h-12 rounded-full bg-[#1da1f2] text-white flex items-center justify-center hover:scale-110 transition-all duration-300 hover:shadow-xl">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.104c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 0021.677-11.855c0-.21-.005-.423-.015-.635A9.936 9.936 0 0024 4.59z"></path>
-                                </svg>
-                            </button>
-                            <button @click="shareOnFacebook" class="share-btn group relative w-12 h-12 rounded-full bg-[#4267B2] text-white flex items-center justify-center hover:scale-110 transition-all duration-300 hover:shadow-xl">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
-                                </svg>
-                            </button>
-                            <button @click="copyToClipboard" class="share-btn group relative w-12 h-12 rounded-full bg-gradient-to-r from-[#7ec8e3] to-[#1a4a6b] text-white flex items-center justify-center hover:scale-110 transition-all duration-300 hover:shadow-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
+            <!-- Rest of your article content continues here... -->
+            
         </article>
 
-        <!-- Enhanced Lightbox Modal -->
+        <!-- Premium Video Modal -->
         <Teleport to="body">
-            <Transition name="lightbox-fade">
-                <div v-if="lightboxOpen" class="lightbox fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center" @click="closeLightbox">
-                    <div class="relative max-w-7xl mx-4" @click.stop>
-                        <img :src="galleryImages[lightboxIndex]" alt="Gallery image" class="w-full h-auto max-h-[90vh] object-contain rounded-2xl shadow-2xl">
-                        
-                        <!-- Navigation Buttons -->
-                        <button @click="closeLightbox" class="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Transition name="modal-premium">
+                <div v-if="showVideoModal" class="video-modal fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4" @click="showVideoModal = false">
+                    <div class="relative max-w-6xl w-full" @click.stop>
+                        <button @click="showVideoModal = false" class="absolute -top-12 right-0 text-white/60 hover:text-white transition-all duration-300">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
-                        
-                        <button v-if="lightboxIndex > 0" @click="previousImage" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </button>
-                        
-                        <button v-if="lightboxIndex < galleryImages.length - 1" @click="nextImage" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all duration-300 backdrop-blur-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
-                        
-                        <!-- Image Counter -->
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-full px-4 py-2">
-                            <span class="text-white text-sm">{{ lightboxIndex + 1 }} / {{ galleryImages.length }}</span>
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl" style="padding-bottom: 56.25%">
+                            <iframe 
+                                :src="`https://www.youtube.com/embed/${getYouTubeId(article?.youtube_url || '')}?autoplay=1&rel=0&modestbranding=1`"
+                                class="absolute inset-0 w-full h-full"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                            ></iframe>
                         </div>
                     </div>
                 </div>
@@ -298,19 +303,19 @@
 </template>
 
 <script setup lang="ts">
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+if (process.client) {
+    gsap.registerPlugin(ScrollTrigger)
+}
 
 
-// ============================================================
-// Props & Route
-// ============================================================
 
+// Route & Data
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
 const config = useRuntimeConfig()
-
-// ============================================================
-// Data Fetching with useAsyncData
-// ============================================================
 
 const { data: article, pending, error } = await useAsyncData<IArticle>(
     `article-${slug.value}`,
@@ -320,7 +325,7 @@ const { data: article, pending, error } = await useAsyncData<IArticle>(
             {
                 params: {
                     'filters[slug][$eq]': slug.value,
-                    populate: '*',
+                    populate: 'category,featured_image',
                 },
             }
         )
@@ -344,131 +349,167 @@ const { data: article, pending, error } = await useAsyncData<IArticle>(
     }
 )
 
-// ============================================================
-// SEO Configuration
-// ============================================================
-
-useSeoMeta({
-    title: () => article.value?.meta_title || article.value?.title || 'Travel Article',
-    description: () => article.value?.meta_description || article.value?.description || 'Explore amazing travel destinations and adventures',
-    ogTitle: () => article.value?.meta_title || article.value?.title,
-    ogDescription: () => article.value?.meta_description || article.value?.description,
-    ogImage: () => article.value?.og_image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
-    ogType: 'article',
-    twitterCard: 'summary_large_image',
-    twitterTitle: () => article.value?.title,
-    twitterDescription: () => article.value?.description,
-    twitterImage: () => article.value?.og_image
+// Computed hero background
+const heroBackgroundImage = computed(() => {
+    return article.value?.og_image || 
+           article.value?.featured_image?.url || 
+           'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=2000&q=90'
 })
 
-useHead(() => ({
-    title: article.value?.meta_title || article.value?.title || 'Travel Article',
-    meta: [
-        { name: 'description', content: article.value?.meta_description || article.value?.description },
-        { property: 'og:title', content: article.value?.meta_title || article.value?.title },
-        { property: 'og:description', content: article.value?.meta_description || article.value?.description },
-        { property: 'og:image', content: article.value?.og_image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80' },
-        { property: 'og:type', content: 'article' },
-        { property: 'og:url', content: article.value?.canonical_url || `https://uncharted.webdevlab.org/articles/${slug.value}` },
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: article.value?.title },
-        { name: 'twitter:description', content: article.value?.description },
-        { name: 'twitter:image', content: article.value?.og_image },
-        { name: 'article:published_time', content: article.value?.published_date },
-        { name: 'author', content: 'Shayon' }
-    ],
-    link: [
-        {
-            rel: 'canonical',
-            href: article.value?.canonical_url || `https://uncharted.webdevlab.org/articles/${slug.value}`
-        }
-    ],
-    script: [
-        {
-            type: 'application/ld+json',
-            innerHTML: JSON.stringify({
-                '@context': 'https://schema.org',
-                '@type': 'Article',
-                headline: article.value?.title,
-                description: article.value?.description,
-                datePublished: article.value?.published_date,
-                dateModified: article.value?.published_date,
-                author: {
-                    '@type': 'Person',
-                    name: 'Shayon',
-                    url: 'https://uncharted.webdevlab.org/about'
-                },
-                mainEntityOfPage: {
-                    '@type': 'WebPage',
-                    '@id': article.value?.canonical_url || `https://uncharted.webdevlab.org/articles/${slug.value}`
-                }
+// Refs & State
+const heroImage = ref<HTMLElement | null>(null)
+const particleCanvas = ref<HTMLCanvasElement | null>(null)
+const readingProgress = ref(0)
+const showMapPreview = ref(false)
+const showVideoModal = ref(false)
+const previewMapContainer = ref<HTMLElement | null>(null)
+
+// Particle Animation System
+let particleAnimation: number | null = null
+
+const initParticles = () => {
+    if (!particleCanvas.value) return
+    
+    const canvas = particleCanvas.value
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    
+    let particles: Array<{
+        x: number
+        y: number
+        size: number
+        speedX: number
+        speedY: number
+        opacity: number
+    }> = []
+    
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        initParticlesArray()
+    }
+    
+    const initParticlesArray = () => {
+        particles = []
+        const particleCount = Math.floor((canvas.width * canvas.height) / 12000)
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2 + 1,
+                speedX: (Math.random() - 0.5) * 0.2,
+                speedY: (Math.random() - 0.5) * 0.2,
+                opacity: Math.random() * 0.4 + 0.1
             })
         }
-    ]
-}))
-
-// ============================================================
-// Gallery Images
-// ============================================================
-
-const galleryImages = [
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",      // ocean / sea
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&q=80",      // mountains
-  "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=600&q=80",      // forest trail
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80",      // desert road
-  "https://images.unsplash.com/photo-1499346030926-9a72daac6c63?w=600&q=80",      // city skyline
-  "https://images.unsplash.com/photo-1558673810-9b0b6316d4f4?w=600&q=80",      // waterfall
-  "https://images.unsplash.com/photo-1483721310020-03333e577078?w=600&q=80",      // beach sunset
-  "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=600&q=80"       // snow landscape
-];
-// ============================================================
-// Lightbox State
-// ============================================================
-
-const lightboxOpen = ref(false)
-const lightboxIndex = ref(0)
-
-const openLightbox = (index: number) => {
-    lightboxIndex.value = index
-    lightboxOpen.value = true
-    document.body.style.overflow = 'hidden'
-}
-
-const closeLightbox = () => {
-    lightboxOpen.value = false
-    document.body.style.overflow = ''
-}
-
-const nextImage = () => {
-    if (lightboxIndex.value < galleryImages.length - 1) {
-        lightboxIndex.value++
     }
-}
-
-const previousImage = () => {
-    if (lightboxIndex.value > 0) {
-        lightboxIndex.value--
+    
+    const animate = () => {
+        if (!ctx || !canvas) return
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        
+        particles.forEach(particle => {
+            ctx.beginPath()
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(126, 200, 227, ${particle.opacity})`
+            ctx.fill()
+            
+            particle.x += particle.speedX
+            particle.y += particle.speedY
+            
+            if (particle.x < 0) particle.x = canvas.width
+            if (particle.x > canvas.width) particle.x = 0
+            if (particle.y < 0) particle.y = canvas.height
+            if (particle.y > canvas.height) particle.y = 0
+        })
+        
+        particleAnimation = requestAnimationFrame(animate)
     }
+    
+    window.addEventListener('resize', resizeCanvas)
+    resizeCanvas()
+    animate()
 }
 
-// ============================================================
-// Map Integration (Fixed)
-// ============================================================
-
-const mapContainer = ref<HTMLElement | null>(null)
-let mapInstance: any = null
-let mapScriptLoaded = false
-
-onMounted(async () => {
-    if (article.value?.map_lat && article.value?.map_lng && mapContainer.value) {
-        await loadMapAndInitialize()
+// Animations
+onMounted(() => {
+    // Parallax effect
+    if (process.client && heroImage.value) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset
+            const rate = scrolled * 0.3
+            heroImage.value!.style.transform = `translateY(${rate}px)`
+        })
+    }
+    
+    // Reading progress
+    window.addEventListener('scroll', () => {
+        const winScroll = document.documentElement.scrollTop
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight
+        const scrolled = (winScroll / height) * 100
+        readingProgress.value = scrolled / 100
+    })
+    
+    // Initialize particles
+    initParticles()
+    
+    // GSAP Timeline for hero elements
+    if (process.client) {
+        const tl = gsap.timeline()
+        
+        tl.fromTo('.category-container', 
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }
+        )
+        .fromTo('.title-container', 
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, ease: 'power4.out' },
+            '-=0.3'
+        )
+        .fromTo('.location-wrapper', 
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=0.2'
+        )
+        .fromTo('.youtube-teaser', 
+            { y: 30, opacity: 0, scale: 0.95 },
+            { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(0.6)' },
+            '-=0.2'
+        )
+        .fromTo('.stats-dashboard', 
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=0.2'
+        )
+        .fromTo('.author-card', 
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=0.2'
+        )
+        .fromTo('.scroll-hint', 
+            { opacity: 0 },
+            { opacity: 1, duration: 1 },
+            '-=0.5'
+        )
     }
 })
 
-const loadMapAndInitialize = async () => {
+// Cleanup
+onUnmounted(() => {
+    if (particleAnimation) {
+        cancelAnimationFrame(particleAnimation)
+    }
+})
+
+// Map Preview
+let mapScriptLoaded = false
+
+const loadMapForPreview = async () => {
     return new Promise((resolve) => {
         if (mapScriptLoaded) {
-            initMap()
+            initPreviewMap()
             resolve(true)
             return
         }
@@ -480,123 +521,76 @@ const loadMapAndInitialize = async () => {
         
         script.onload = () => {
             mapScriptLoaded = true
-            initMap()
+            initPreviewMap()
             resolve(true)
-        }
-        
-        script.onerror = () => {
-            console.error('Failed to load Geoapify map')
-            resolve(false)
         }
         
         document.head.appendChild(script)
     })
 }
 
-const initMap = () => {
-    if (!mapContainer.value || !article.value?.map_lat || !article.value?.map_lng) return
+const initPreviewMap = () => {
+    if (!previewMapContainer.value || !article.value?.map_lat || !article.value?.map_lng) return
     
-    // Wait for Geoapify to be available
     const checkGeoapify = setInterval(() => {
         // if (window.geoapify) {
         //     clearInterval(checkGeoapify)
+        //     const geoapify = window.geoapify
             
-        //     try {
-        //         const geoapify = window.geoapify
-                
-        //         mapInstance = new geoapify.Map(mapContainer.value, {
-        //             center: [article.value!.map_lng, article.value!.map_lat],
-        //             zoom: 12,
-        //             style: 'osm-carto'
-        //         })
-                
-        //         // Add marker
-        //         new geoapify.Marker({
-        //             position: [article.value!.map_lng, article.value!.map_lat],
-        //             map: mapInstance,
-        //             draggable: false
-        //         }).setPopup({
-        //             content: `<div class="p-2"><strong>${article.value?.location}</strong><br/>${article.value?.title}</div>`
-        //         })
-        //     } catch (error) {
-        //         console.error('Error initializing map:', error)
-        //     }
+        //     new geoapify.Map(previewMapContainer.value, {
+        //         center: [article.value!.map_lng, article.value!.map_lat],
+        //         zoom: 13,
+        //         style: 'osm-carto'
+        //     })
+            
+        //     new geoapify.Marker({
+        //         position: [article.value!.map_lng, article.value!.map_lat],
+        //         map: previewMapContainer.value
+        //     })
         // }
     }, 100)
     
-    // Timeout after 10 seconds
-    setTimeout(() => clearInterval(checkGeoapify), 10000)
+    setTimeout(() => clearInterval(checkGeoapify), 5000)
 }
 
-// ============================================================
-// Utility Functions
-// ============================================================
+watch(showMapPreview, async (show) => {
+    if (show && article.value?.map_lat && article.value?.map_lng && previewMapContainer.value && !mapScriptLoaded) {
+        await loadMapForPreview()
+    }
+})
 
+// SEO
+useSeoMeta({
+    title: () => article.value?.meta_title || article.value?.title || 'Travel Article',
+    description: () => article.value?.meta_description || article.value?.description || 'Explore amazing travel destinations and adventures',
+    ogTitle: () => article.value?.meta_title || article.value?.title,
+    ogDescription: () => article.value?.meta_description || article.value?.description,
+    ogImage: () => article.value?.og_image || article.value?.featured_image?.url,
+    ogType: 'article',
+    twitterCard: 'summary_large_image',
+})
+
+// Utilities
 const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric'
     })
 }
 
-const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
-    return num.toString()
-}
-
 const calculateReadingTime = (text: string): number => {
     const wordsPerMinute = 200
-    const wordCount = text.split(/\s+/).length
+    const wordCount = text?.split(/\s+/).length || 0
     return Math.max(1, Math.ceil(wordCount / wordsPerMinute))
 }
 
-const getYouTubeEmbedUrl = (url: string): string => {
-    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)?.[1]
-    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1` : url
-}
-
-// ============================================================
-// Share Functions
-// ============================================================
-
-const shareOnTwitter = () => {
-    const url = encodeURIComponent(window.location.href)
-    const text = encodeURIComponent(`Check out this amazing travel article: ${article.value?.title}`)
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400')
-}
-
-const shareOnFacebook = () => {
-    const url = encodeURIComponent(window.location.href)
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400')
-}
-
-const copyToClipboard = async () => {
-    try {
-        await navigator.clipboard.writeText(window.location.href)
-        const toast = document.createElement('div')
-        toast.className = 'fixed bottom-6 right-6 bg-gradient-to-r from-[#1a4a6b] to-[#0f2a3f] text-white px-6 py-3 rounded-full shadow-2xl z-50 animate-slide-up'
-        toast.innerHTML = '<div class="flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Link copied to clipboard!</span></div>'
-        document.body.appendChild(toast)
-        setTimeout(() => {
-            toast.style.opacity = '0'
-            setTimeout(() => toast.remove(), 300)
-        }, 3000)
-    } catch (err) {
-        console.error('Failed to copy:', err)
-    }
+const getYouTubeId = (url: string): string => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/)
+    return match?.[1] || ''
 }
 </script>
 
 <style scoped>
 @use "~/assets/scss/single-article.scss";
 </style>
-
-
-<!-- hero -> beautiful background with featured image, overlay location, views, date,  travel cost, best time to visit, reading time, author detail
-section -> In the left, description. On the right, featured articles, youtube url, social share, category (sticky right side). 
-section -> A beautiful gallery, very interactive 
-section -> 2 cards for previous article, net article 
-section -> map 
-section -> Display all comments (use dummy comments) -->

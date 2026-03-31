@@ -62,3 +62,16 @@ Requirements:
    - Include example mapping of `IArticle` fields to UI elements.
 
 Make it unique, modern, and visually engaging.
+
+
+
+
+
+
+
+<!-- hero -> beautiful background with featured image, overlay location, views, date,  travel cost, best time to visit, reading time, author detail
+section -> In the left, description. On the right, featured articles, youtube url, social share, category (sticky right side). 
+section -> A beautiful gallery, very interactive 
+section -> 2 cards for previous article, net article 
+section -> map 
+section -> Display all comments (use dummy comments) -->
