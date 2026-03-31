@@ -5,7 +5,9 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss',  '@nuxt/image'],
   runtimeConfig: {
     public: {
-      apiBase: "http://localhost:1337", // your Strapi URL
+      backendApi: '', //  can be overridden by NUXT_PUBLIC_BACKEND_API environment variable
+      geoapifyApiKey: '',
+      geoapifyAutocompleteUrl: '' 
     },
   },
 })

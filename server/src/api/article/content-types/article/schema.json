@@ -17,10 +17,12 @@
     },
     "slug": {
       "type": "uid",
-      "targetField": "title"
+      "targetField": "title",
+      "required": true
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "youtube_url": {
       "type": "string"
@@ -28,6 +30,7 @@
     "featured_image": {
       "type": "media",
       "multiple": false,
+      "required": true,
       "allowedTypes": [
         "images",
         "files",
@@ -46,7 +49,8 @@
       ]
     },
     "published_date": {
-      "type": "date"
+      "type": "date",
+      "required": true
     },
     "travel_cost": {
       "type": "integer"
@@ -79,10 +83,12 @@
       "inversedBy": "articles"
     },
     "meta_title": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "meta_description": {
-      "type": "text"
+      "type": "text",
+      "required": true
     },
     "og_image": {
       "type": "media",

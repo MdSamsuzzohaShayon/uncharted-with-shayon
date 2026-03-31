@@ -125,7 +125,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle.slug"
+                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.id)"
                     class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
 
                     <div class="relative h-72 md:h-80 overflow-hidden">
@@ -159,7 +159,8 @@
                 </NuxtLink>
 
                 <div class="flex flex-col gap-6">
-                    <article v-for="article in nextTwoArticles" :key="article.id"
+                    <NuxtLink v-for="article in nextTwoArticles" :key="article.id"
+                    v-bind:href="article?.slug || String(article.id)"
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
 
                         <div class="relative h-44 overflow-hidden">
@@ -184,7 +185,7 @@
                                 {{ article.title }}
                             </h3>
                         </div>
-                    </article>
+                    </NuxtLink>
                 </div>
             </div>
         </section>
@@ -265,7 +266,7 @@ useHead({
 
 const searchInputRef = ref(null);
 const featureArticles = ref<IArticle[]>(articlesData);
-const defaultBg = ref<string>(articlesData[0]?.featured_image.url || "");
+const defaultBg = ref<string>(articlesData[0]?.featured_image?.url || "");
 
 
 
@@ -288,10 +289,11 @@ function setHeroBg(articleId: number) {
 
     const bgArticle = featureArticles.value.find((a) => a.id === articleId);
     if (bgArticle) {
-        crossFadeBg(bgArticle.featured_image.url);
+        crossFadeBg(bgArticle.featured_image?.url || null);
     }
 }
-function crossFadeBg(src: string) {
+function crossFadeBg(src: string | null) {
+    if(!src) return;
     bgFading.value = true
     setTimeout(() => { heroBg.value = src; bgFading.value = false }, 420)
 }
@@ -331,7 +333,7 @@ const config = useRuntimeConfig()
 const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
     "latest-articles", // ✅ cache key (important)
     async () => {
-        return await $fetch(`${config.public.apiBase}/api/articles`, {
+        return await $fetch(`${config.public.backendApi}/api/articles`, {
             params: {
                 sort: ["published_date:desc"], // latest first
                 pagination: { limit: 3 }, // only 3 posts
@@ -350,6 +352,9 @@ const firstArticle = computed(() => {
 const nextTwoArticles = computed(() => {
     return latestArticles.value?.data?.slice(1, 3) ?? []
 })
+
+
+console.log({firstArticle: firstArticle.value});
 
 
 

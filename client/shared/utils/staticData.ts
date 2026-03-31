@@ -1,65 +1,81 @@
-export const articlesData = [
+import type { IArticle } from "../types";
+
+export const articlesData: IArticle[] = [
     {
         id: 1,
         category: "Nature",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4"},
+        featured_image: { id: 1, url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 2,
         category: "Adventure",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1551632811-561732d1e306"},
+        featured_image: { id: 2, url: "https://images.unsplash.com/photo-1551632811-561732d1e306" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 3,
         category: "Culture",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1533105079780-92b9be482077"},
+        featured_image: { id: 3, url: "https://images.unsplash.com/photo-1533105079780-92b9be482077" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 4,
         category: "Geography",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e"},
+        featured_image: { id: 4, url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 5,
         category: "History",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1664095163365-409ae33fce5c"},
+        featured_image: { id: 5, url: "https://images.unsplash.com/photo-1664095163365-409ae33fce5c" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 6,
         category: "Archeology",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1670006589700-0b557c00e609"},
+        featured_image: { id: 6, url: "https://images.unsplash.com/photo-1670006589700-0b557c00e609" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
     {
         id: 7,
         category: "Festivals",
         title: "This is title",
-        featured_image: {url: "https://images.unsplash.com/photo-1683828936817-3f2c6c856d6d"},
+        featured_image: { id: 7, url: "https://images.unsplash.com/photo-1683828936817-3f2c6c856d6d" },
         slug: "a-new-title",
         description: "desc-1",
         published_date: new Date().toISOString(),
+        location: "Dhaka",
+        views: 0
     },
 ]
