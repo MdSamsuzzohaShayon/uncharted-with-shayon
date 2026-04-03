@@ -160,7 +160,7 @@
 
                 <div class="flex flex-col gap-6">
                     <NuxtLink v-for="article in nextTwoArticles" :key="article.id"
-                    v-bind:href="article?.slug || String(article.id)"
+                        v-bind:href="article?.slug || String(article.id)"
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
 
                         <div class="relative h-44 overflow-hidden">
@@ -236,13 +236,27 @@
                 </figure>
             </div>
         </section>
-
+        <!-- <button @click="trackPurchase">
+            Complete Purchase
+        </button> -->
 
     </div>
 </template>
 
 
 <script setup lang="ts">
+
+
+// const { $gtm } = useNuxtApp()
+
+// const trackPurchase = () => {
+//     $gtm.push({
+//         event: 'purchase',
+//         transaction_id: 'ORDER_123',
+//         value: 99.99,
+//         currency: 'USD'
+//     })
+// }
 
 // ── SEO Meta ──────────────────────────────────
 useHead({
@@ -262,9 +276,6 @@ useHead({
 })
 
 // ── Search ────────────────────────────────────
-
-
-const searchInputRef = ref(null);
 const featureArticles = ref<IArticle[]>(articlesData);
 const defaultBg = ref<string>(articlesData[0]?.featured_image?.url || "");
 
@@ -293,7 +304,7 @@ function setHeroBg(articleId: number) {
     }
 }
 function crossFadeBg(src: string | null) {
-    if(!src) return;
+    if (!src) return;
     bgFading.value = true
     setTimeout(() => { heroBg.value = src; bgFading.value = false }, 420)
 }
