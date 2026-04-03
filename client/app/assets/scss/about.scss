@@ -1,0 +1,530 @@
+// ============================================================
+// about.scss — Uncharted with Shayon
+// Custom styles that enhance Tailwind with advanced animations
+// and visual effects that Tailwind cannot express
+// ============================================================
+
+// ============================================================
+// Custom Keyframes & Advanced Animations
+// ============================================================
+
+@keyframes shimmer-gold {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes border-pulse {
+    0%, 100% {
+      border-color: rgba(126, 200, 227, 0.3);
+      box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.1);
+    }
+    50% {
+      border-color: rgba(126, 200, 227, 0.8);
+      box-shadow: 0 0 0 4px rgba(126, 200, 227, 0.2);
+    }
+  }
+  
+  @keyframes text-shimmer {
+    0% {
+      background-position: -100% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  @keyframes gradient-flow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  // ============================================================
+  // Hero Section Advanced Styling
+  // ============================================================
+  
+  .about-hero {
+    isolation: isolate;
+    
+    .hero-badge {
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(126, 200, 227, 0.3), transparent);
+        transition: left 0.6s ease;
+      }
+      
+      &:hover::before {
+        left: 100%;
+      }
+    }
+    
+    .hero-title {
+      text-shadow: 0 0 30px rgba(126, 200, 227, 0.2);
+      animation: slide-in-left 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+      
+      .hero-title-accent {
+        background: linear-gradient(135deg, #7ec8e3, #1a4a6b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        background-size: 200% 200%;
+        animation: gradient-flow 3s ease infinite;
+      }
+    }
+    
+    .hero-subtitle {
+      animation: slide-in-right 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) 0.1s forwards;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+    
+    .hero-actions {
+      animation: fade-in-up 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) 0.2s forwards;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+  }
+  
+  // ============================================================
+  // Story Section - Immersive Narrative
+  // ============================================================
+  
+  .story-section {
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #7ec8e3, transparent);
+    }
+    
+    .story-text {
+      position: relative;
+      
+      .story-paragraph {
+        position: relative;
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: translateX(4px);
+        }
+      }
+      
+      .story-highlight {
+        position: relative;
+        display: inline-block;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 30%;
+          background: rgba(126, 200, 227, 0.2);
+          z-index: -1;
+          transition: height 0.3s ease;
+        }
+        
+        &:hover::after {
+          height: 70%;
+        }
+      }
+    }
+    
+    .story-image-wrapper {
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(126, 200, 227, 0.2), transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 1;
+        pointer-events: none;
+      }
+      
+      &:hover::before {
+        opacity: 1;
+      }
+    }
+    
+    .story-badge {
+      backdrop-filter: blur(8px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+  
+  // ============================================================
+  // Stats Section with Gradient Number Effect
+  // ============================================================
+  
+  .stats-section {
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(126, 200, 227, 0.05) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      
+      &:hover::before {
+        opacity: 1;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #7ec8e3, #1a4a6b);
+        transition: width 0.4s ease;
+      }
+      
+      &:hover::after {
+        width: 100%;
+      }
+      
+      .stat-number {
+        background: linear-gradient(135deg, #1a4a6b 0%, #7ec8e3 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+      }
+    }
+  }
+  
+  // ============================================================
+  // Timeline Milestones with Vertical Line
+  // ============================================================
+  
+  .timeline-section {
+    .timeline-list {
+      position: relative;
+      
+      @media (min-width: 768px) {
+        &::before {
+          content: '';
+          position: absolute;
+          left: 2rem;
+          top: 2rem;
+          bottom: 2rem;
+          width: 2px;
+          background: linear-gradient(180deg, #7ec8e3, transparent);
+        }
+      }
+    }
+    
+    .milestone-item {
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      
+      @media (min-width: 768px) {
+        &::before {
+          content: '';
+          position: absolute;
+          left: -2rem;
+          top: 1.75rem;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #7ec8e3;
+          box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.5);
+          transition: box-shadow 0.3s ease;
+        }
+        
+        &:hover::before {
+          animation: border-pulse 1s ease;
+        }
+      }
+      
+      &:hover {
+        transform: translateX(8px);
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafc 100%);
+        box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+      }
+      
+      .milestone-year {
+        position: relative;
+        font-weight: 800;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #7ec8e3, transparent);
+          transition: width 0.3s ease;
+        }
+        
+        .milestone-item:hover &::after {
+          width: 100%;
+        }
+      }
+    }
+  }
+  
+  // ============================================================
+  // Gallery Mosaic with Caption Overlays
+  // ============================================================
+  
+  .gallery-section {
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(26, 74, 107, 0.4), rgba(126, 200, 227, 0.2));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 1;
+      }
+      
+      &:hover::before {
+        opacity: 1;
+      }
+      
+      .gallery-image {
+        transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      }
+      
+      &:hover .gallery-image {
+        transform: scale(1.08);
+      }
+    }
+  }
+  
+  // ============================================================
+  // Connect Section - Social Links Animation
+  // ============================================================
+  
+  .connect-section {
+    .social-link {
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(135deg, #7ec8e3, #1a4a6b);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+      }
+      
+      &:hover::before {
+        opacity: 0.3;
+      }
+    }
+    
+    .newsletter-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.25);
+      }
+      
+      .newsletter-input {
+        transition: all 0.3s ease;
+        
+        &:focus {
+          backdrop-filter: blur(12px);
+        }
+      }
+      
+      .newsletter-btn {
+        position: relative;
+        overflow: hidden;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.5s ease;
+        }
+        
+        &:hover::before {
+          left: 100%;
+        }
+      }
+    }
+  }
+  
+  // ============================================================
+  // Footer Enhancements
+  // ============================================================
+  
+  .footer {
+    .footer-link, .footer-social-link {
+      position: relative;
+      display: inline-block;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background: #7ec8e3;
+        transition: width 0.3s ease;
+      }
+      
+      &:hover::after {
+        width: 100%;
+      }
+    }
+    
+    .footer-logo {
+      transition: transform 0.3s ease;
+      
+      &:hover {
+        transform: rotate(10deg) scale(1.05);
+      }
+    }
+  }
+  
+  // ============================================================
+  // Responsive Breakpoint Enhancements
+  // ============================================================
+  
+  @media (max-width: 768px) {
+    .story-section .story-badge {
+      display: none;
+    }
+    
+    .timeline-section .timeline-list::before {
+      display: none;
+    }
+    
+    .gallery-section .gallery-grid {
+      gap: 0.75rem;
+    }
+  }
+  
+  // ============================================================
+  // Accessibility & Focus States
+  // ============================================================
+  
+  :focus-visible {
+    outline: 2px solid #7ec8e3;
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+  
+  // ============================================================
+  // Print Styles
+  // ============================================================
+  
+  @media print {
+    .about-hero {
+      min-height: auto;
+      break-inside: avoid;
+    }
+    
+    .stat-card, .milestone-item, .gallery-section {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    
+    .hero-actions, .connect-section, .footer {
+      display: none;
+    }
+  }
+  
+  // ============================================================
+  // Reduced Motion Support
+  // ============================================================
+  
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    .hero-title, .hero-subtitle, .hero-actions {
+      animation: none;
+      opacity: 1;
+    }
+  }

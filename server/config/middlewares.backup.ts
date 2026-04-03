@@ -17,12 +17,12 @@ const config: Core.Config.Middlewares = [
     name: 'global::upload-folder',
     config: {
       // You can add configuration options here if needed
-      folders: {
-        featured_image: 'articles',
-        gallery: 'gallery',
-        cover_image: 'locations',
-        default: 'others'
-      }
+      // folders: {
+      //   featured_image: 'articles',
+      //   gallery: 'gallery',
+      //   cover_image: 'locations',
+      //   default: 'others'
+      // }
     }
   }
 ];

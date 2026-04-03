@@ -1,0 +1,121 @@
+@use '../mixins' as *;
+
+// ============================================================
+// Home Page Specific Styles
+// ============================================================
+
+// Hero Section
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+// Animation Stagger for Hero Content
+.anim-hero-label {
+    @include fade-in-up(0.1s, 'normal');
+}
+
+.anim-hero-h1 {
+    @include fade-in-up(0.25s, 'normal');
+}
+
+.anim-hero-body {
+    @include fade-in-up(0.45s, 'normal');
+}
+
+.anim-hero-cta {
+    @include fade-in-up(0.6s, 'normal');
+}
+
+.anim-cards-wrap {
+    @include fade-in-up(0.35s, 'normal');
+}
+
+// Category Filter Bar
+.category-filter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: z-index('content');
+
+    .filter-container {
+        background: rgba(255, 255, 255, 0.92);
+        @include backdrop-blur(12px);
+        border-radius: 1rem;
+        // border: 1px solid color('border'); // temp
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// Featured Posts Grid
+.featured-posts {
+    .featured-post-card {
+        @include card-base;
+
+        &:hover {
+            transform: translateY(-4px);
+        }
+    }
+}
+
+// Photo Journal Mosaic
+.photo-journal {
+    .journal-figure {
+        @include transition((transform), 'fast');
+
+        &:hover {
+            transform: scale(1.02);
+        }
+
+        figcaption {
+            p {
+                @include transition((opacity, transform), 'normal');
+            }
+        }
+    }
+}
+
+// Newsletter Section
+.newsletter-section {
+    .newsletter-form {
+        input {
+            @include transition((background-color, border-color), 'fast');
+
+            &:focus {
+                // border-color: color('accent');// temp
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        button {
+            @include transition((all), 'fast');
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(126, 200, 227, 0.3);
+            }
+
+            &:active {
+                transform: scale(0.95);
+            }
+        }
+    }
+}
+
+// Footer
+.footer {
+    // background: color('text-primary'); // temp
+    // color: color('white');  // temp
+
+    .footer-link {
+        @include transition((color), 'fast');
+
+        // &:hover {
+        //     color: color('accent');
+        // } // temp
+    }
+}

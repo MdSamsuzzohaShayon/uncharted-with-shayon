@@ -1,0 +1,133 @@
+// ============================================================
+// Mixins & Functions
+// ============================================================
+
+@use 'sass:map';
+@use 'sass:list';
+@use 'sass:color';
+@use 'variables' as *;
+
+// Media Query Mixins
+@mixin respond-to($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @media (min-width: map.get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+@mixin respond-below($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    // @media (max-width: map.get($breakpoints, $breakpoint) - 1px) {
+    //   @content;
+    // }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+// Typography Mixins
+@mixin font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+@mixin font-body {
+  font-family: 'DM Sans', sans-serif;
+}
+
+@mixin text-truncate($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// Animation Mixins
+@mixin transition($properties, $duration: 'normal', $easing: 'default') {
+  $transition-properties: ();
+  
+  @each $property in $properties {
+    $transition-properties: list.append($transition-properties, $property duration($duration) easing($easing), comma);
+  }
+  
+  transition: $transition-properties;
+}
+
+@mixin fade-in-up($delay: 0s, $duration: 'normal') {
+  animation: fade-in-up duration($duration) easing('ease-out') $delay both;
+}
+
+@mixin floating-animation($name, $duration: 7s, $delay: 0s) {
+  animation: $name $duration ease-in-out infinite $delay;
+}
+
+// Layout Mixins
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin gradient-overlay($direction: to bottom, $start-opacity: 0.75, $end-opacity: 0) {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient($direction, rgba(0, 0, 0, $start-opacity), rgba(0, 0, 0, $end-opacity));
+}
+
+// Card Styles
+@mixin card-base {
+    // background: color('card-bg'); // temp
+    // border: 1px solid color('border'); // temp
+    border-radius: 1rem;
+    overflow: hidden;
+    @include transition((box-shadow, transform), 'fast');
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+// Interactive Elements
+@mixin interactive-scale($scale: 1.05) {
+  @include transition((transform), 'fast');
+  
+  &:hover {
+    transform: scale($scale);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Backdrop Blur
+@mixin backdrop-blur($blur: 16px) {
+  backdrop-filter: blur($blur) saturate(1.4);
+  -webkit-backdrop-filter: blur($blur) saturate(1.4);
+}
+
+// Hide Scrollbar
+@mixin hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

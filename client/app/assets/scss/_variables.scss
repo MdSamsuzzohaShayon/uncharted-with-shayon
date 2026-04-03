@@ -1,0 +1,97 @@
+// ============================================================
+// Variables & Configuration
+// ============================================================
+
+@use 'sass:map';
+@use 'sass:color';
+
+// Color System
+$colors: (
+  'bg': #f9fafc,
+  'card-bg': #ffffff,
+  'text-primary': #1a1a1a,
+  'text-secondary': #555555,
+  'border': #e5e7eb,
+  'accent': #7ec8e3,
+  'accent-dark': #1a4a6b,
+  'white': #ffffff,
+  'black': #000000,
+);
+
+// Animation Durations
+$durations: (
+  'fast': 200ms,
+  'normal': 300ms,
+  'slow': 420ms,
+  'hero': 800ms,
+  'marquee': 28s,
+);
+
+// Animation Easing Curves
+$easings: (
+  'default': cubic-bezier(0.4, 0, 0.2, 1),
+  'bounce': cubic-bezier(0.34, 1.56, 0.64, 1),
+  'smooth': cubic-bezier(0.4, 0, 0.2, 1),
+  'ease-out': cubic-bezier(0, 0, 0.2, 1),
+  'ease-in': cubic-bezier(0.4, 0, 1, 1),
+);
+
+// Breakpoints
+$breakpoints: (
+  'sm': 640px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+  '2xl': 1536px,
+);
+
+// Z-index Layers
+$z-layers: (
+  'base': 0,
+  'content': 10,
+  'overlay': 20,
+  'modal': 30,
+  'popup': 40,
+  'tooltip': 50,
+);
+
+// CSS Custom Properties (for runtime theming)
+:root {
+  @each $key, $value in $colors {
+    --#{$key}: #{$value};
+  }
+  
+  @each $key, $value in $durations {
+    --hero-transition-dur: #{$value};
+  }
+}
+
+// Function to get color values (returns actual color value, not CSS variable)
+@function color($key) {
+  @return map.get($colors, $key);
+}
+
+// Function to get CSS variable reference (for dynamic runtime theming)
+@function color-var($key) {
+  @return var(--#{$key});
+}
+
+// Function to get duration
+@function duration($key) {
+  @return map.get($durations, $key);
+}
+
+// Function to get easing
+@function easing($key) {
+  @return map.get($easings, $key);
+}
+
+// Function to get breakpoint
+@function breakpoint($key) {
+  @return map.get($breakpoints, $key);
+}
+
+// Function to get z-index
+@function z-index($key) {
+  @return map.get($z-layers, $key);
+}

@@ -1,0 +1,77 @@
+Design a visually stunning, interactive, animated, responsive hero section for a single article page. 
+The hero should use data from the following interface:
+
+export interface IArticle {
+    id: number;
+    title: string;
+    featured_image?: IImage;
+    slug: string;
+    description: string;
+    published_date: string;
+    travel_cost?: string;
+    best_time?: string;
+    location: string;
+    views: number;
+    meta_title?: string;
+    meta_description?: string;
+    og_image?: string;
+    canonical_url?: string;
+    map_lat?: number;
+    map_lng?: number;
+    youtube_url?: string;
+    category: any;
+}
+
+Requirements:
+
+1. **Hero Layout**
+   - Full-screen or large hero section with the featured image as a background.
+   - Overlay gradient for readability.
+   - Parallax scrolling effect on the background image.
+   - Foreground content block for text and metadata.
+
+2. **Content to Display**
+   - Article Title (`title`) with large, bold typography.
+   - Location (`location`) badge with hover map preview using `map_lat` & `map_lng`.
+   - Views (`views`) counter animated from 0 to value.
+   - Published Date (`published_date`), Travel Cost (`travel_cost`), Best Time to Visit (`best_time`), Reading Time (computed).
+   - Author detail card (avatar + name + social links).
+   - Optional YouTube video thumbnail if `youtube_url` exists.
+   - Category tags (`category`) with hover animation.
+
+3. **Animations & Interactions**
+   - Fade-in / slide-in text and stats.
+   - Hover effects on badges, buttons, and author card.
+   - Animated counters for stats.
+   - Optional floating or sliding image gallery thumbnails.
+
+4. **Responsive Design**
+   - Mobile: single-column layout, horizontal scroll for stats cards.
+   - Tablet: two-column layout.
+   - Desktop: full-screen hero with overlaid content.
+
+5. **Styling**
+   - Soft gradients, accent colors, subtle shadows for microinteractions.
+   - Clean typography: bold serif/sans-serif for title, readable sans-serif for stats.
+   - Optional dynamic effects like particles or animated shapes in the background.
+
+6. **Output**
+   - Provide a structured layout description.
+   - Include interactive/animated behaviors.
+   - Suggest HTML/CSS (or TailwindCSS) structure with animation hints if possible.
+   - Include example mapping of `IArticle` fields to UI elements.
+
+Make it unique, modern, and visually engaging.
+
+
+
+
+
+
+
+<!-- hero -> beautiful background with featured image, overlay location, views, date,  travel cost, best time to visit, reading time, author detail
+section -> In the left, description. On the right, featured articles, youtube url, social share, category (sticky right side). 
+section -> A beautiful gallery, very interactive 
+section -> 2 cards for previous article, net article 
+section -> map 
+section -> Display all comments (use dummy comments) -->
