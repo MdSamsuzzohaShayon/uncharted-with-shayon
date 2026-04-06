@@ -6,9 +6,11 @@ export default defineNuxtConfig({
   
   runtimeConfig: {
     public: {
+      // those variables will be overriden from .env file
       backendApi: '',
       geoapifyApiKey: '',
-      geoapifyAutocompleteUrl: ''
+      geoapifyAutocompleteUrl: '',
+      accessToken: ''
     },
   },
 

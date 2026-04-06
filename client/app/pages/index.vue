@@ -62,8 +62,8 @@
                                 aria-label="Featured travel destinations">
                                 <div class="flex gap-3 md:gap-4 items-end justify-center">
 
-                                    <FeatureArticle v-for="article, i in featureArticles"
-                                        v-bind:active-article-id="activeArticleId" v-bind:article="article"
+                                    <FeatureCategory v-for="cat, i in categories"
+                                        v-bind:active-category-id="activeCategoryId" v-bind:category="cat"
                                         v-on:set-hero-bg="setHeroBg" />
                                 </div>
                             </div>
@@ -81,16 +81,17 @@
                             class="text-[#555555] text-xs font-semibold tracking-widest uppercase whitespace-nowrap mr-2 hidden md:block"
                             aria-hidden="true">Explore</span>
                         <div class="w-px h-6 bg-[#e5e7eb] hidden md:block" aria-hidden="true"></div>
-                        <button v-for="(cat, i) in categories" :key="cat.label" :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
+                        <button v-for="(act, i) in activities" :key="act.id" 
+                        :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
                             activeCategory === i
                                 ? 'cat-btn-active bg-[#1a4a6b] text-white shadow-md shadow-[#1a4a6b]/20'
                                 : 'hover:bg-[#f9fafc] text-[#555555] hover:text-[#1a1a1a] hover:scale-105']"
-                            :aria-pressed="activeCategory === i" :aria-label="`Filter by ${cat.label}`"
+                            :aria-pressed="activeCategory === i" :aria-label="`Filter by ${act.name}`"
                             @click="activeCategory = i">
-                            <span
-                                :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0', cat.bg]"
-                                aria-hidden="true">{{ cat.icon }}</span>
-                            {{ cat.label }}
+                            <span :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0',
+                                // act.bg
+                            ]" aria-hidden="true"><NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" /></span>
+                            {{ act.name }}
                         </button>
                     </div>
                 </div>
@@ -245,6 +246,8 @@
 
 
 <script setup lang="ts">
+import type { IActivitiesResponse, IActivity, ICategoriesResponse, ICategory } from '~~/shared/types';
+
 
 
 // const { $gtm } = useNuxtApp()
@@ -267,7 +270,7 @@ useHead({
         { property: 'og:title', content: 'Uncharted with Shayon — Travel & Adventure Blog' },
         { property: 'og:description', content: 'Unscripted journeys and stories from the road.' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:image', content: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80' },
+        { property: 'og:image', content: 'https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Uncharted with Shayon' },
         { name: 'twitter:description', content: 'Unscripted journeys, raw landscapes, travel stories.' },
@@ -276,31 +279,25 @@ useHead({
 })
 
 // ── Search ────────────────────────────────────
-const featureArticles = ref<IArticle[]>(articlesData);
-const defaultBg = ref<string>(articlesData[0]?.featured_image?.url || "");
+const defaultBg = ref<string>("https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp");
+const heroBg = ref(defaultBg.value);
+const bgFading = ref(false);
+const activeCategoryId = ref<null | number>(null);
+const categories = ref<ICategory[]>([]);
+const activities = ref<IActivity[]>([]);
 
-
-
-
-
-
-
-
-const heroBg = ref(defaultBg.value)
-const bgFading = ref(false)
-const activeArticleId = ref<null | number>(articlesData[0]?.id || null);
-
-function setHeroBg(articleId: number) {
-    if (activeArticleId.value === articleId) {
-        activeArticleId.value = -1;
+function setHeroBg(categoryId: number) {
+    // Setting default
+    if (activeCategoryId.value === categoryId) {
+        activeCategoryId.value = -1;
         crossFadeBg(defaultBg.value);
         return
     }
-    activeArticleId.value = articleId
+    activeCategoryId.value = categoryId;
 
-    const bgArticle = featureArticles.value.find((a) => a.id === articleId);
-    if (bgArticle) {
-        crossFadeBg(bgArticle.featured_image?.url || null);
+    const bgCategory = categories.value.find((a) => a.id === categoryId);
+    if (bgCategory) {
+        crossFadeBg(bgCategory.featured_image?.url || null);
     }
 }
 function crossFadeBg(src: string | null) {
@@ -311,20 +308,8 @@ function crossFadeBg(src: string | null) {
 
 // ── Categories ────────────────────────────────
 const activeCategory = ref(0)
-const categories = [
-    { label: 'All', icon: '🗺️', bg: 'bg-[#e8f4fd]' },
-    { label: 'Hiking', icon: '🥾', bg: 'bg-[#ddf4f0]' },
-    { label: 'Desert', icon: '🏜️', bg: 'bg-[#fdf3dc]' },
-    { label: 'Forest', icon: '🌲', bg: 'bg-[#dcf4e4]' },
-    { label: 'Camping', icon: '⛺', bg: 'bg-[#fde8dc]' },
-    { label: 'Beach', icon: '🏖️', bg: 'bg-[#e8eafd]' },
-]
 
 // ── Posts ─────────────────────────────────────
-const smallPosts = [
-    { title: 'Trekking the Himalayas: A Solo Adventure', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', imgAlt: 'Snow-capped Himalayan peaks with trekking trail', category: 'Hiking', date: 'Feb 28, 2025', datetime: '2025-02-28', readTime: '6 min read' },
-    { title: 'Kyoto in Autumn: The Ultimate Temple Trail', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80', imgAlt: 'Kyoto temple pathway lined with autumn maples', category: 'Culture', date: 'Jan 15, 2025', datetime: '2025-01-15', readTime: '5 min read' },
-]
 
 // ── Marquee ───────────────────────────────────
 const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
@@ -345,6 +330,9 @@ const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
     "latest-articles", // ✅ cache key (important)
     async () => {
         return await $fetch(`${config.public.backendApi}/api/articles`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
             params: {
                 sort: ["published_date:desc"], // latest first
                 pagination: { limit: 3 }, // only 3 posts
@@ -354,7 +342,8 @@ const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
             },
         })
     }
-)
+);
+
 
 const firstArticle = computed(() => {
     return latestArticles.value?.data?.[0] ?? null
@@ -364,6 +353,60 @@ const nextTwoArticles = computed(() => {
     return latestArticles.value?.data?.slice(1, 3) ?? []
 })
 
+
+
+
+const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
+    "categories", // ✅ cache key
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/categories`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
+            params: {
+                populate: "*", // populate all relations (e.g., articles)
+                // sort: ["name:asc"], // optional: sort categories alphabetically
+                // pagination: { limit: 100 }, // optional: limit results
+            },
+        })
+    }
+)
+
+
+
+// Watch for data changes and update categories
+watch(categoriesData, (newData) => {
+    if (newData?.data) {
+        categories.value = newData.data
+    }
+}, { immediate: true });
+
+
+
+const { data: activitiesData } = await useAsyncData<IActivitiesResponse>(
+    "activities", // ✅ cache key
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/activities`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
+            params: {
+                populate: "*", // populate all relations (e.g., articles)
+                // sort: ["name:asc"], // optional: sort activities alphabetically
+                // pagination: { limit: 100 }, // optional: limit results
+            },
+        })
+    }
+)
+
+
+
+// Watch for data changes and update categories
+watch(activitiesData, (newData) => {
+    if (newData?.data) {
+        activities.value = newData.data
+    }
+}, { immediate: true });
 
 
 

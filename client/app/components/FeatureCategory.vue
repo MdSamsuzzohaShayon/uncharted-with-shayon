@@ -1,18 +1,18 @@
 <template>
-    <article
-        :class="['float-card float-a group relative w-28 md:w-36 rounded-3xl overflow-hidden shadow-2xl shadow-black/40 cursor-pointer flex-shrink-0 -mb-6', activeArticleId === article.id ? 'is-active' : '']"
-        v-bind:style="{height: cardHeight}" role="button" tabindex="0"
-        aria-label="Nature travel — click to preview" @click="emit('setHeroBg', article.id)"
-        @keydown.enter="emit('setHeroBg', article.id)">
-        <img v-bind:src="article.featured_image.url + '?w=400&q=80'"
-            alt="Majestic mountain lake at sunset with alpine peaks"
+    <article :class="['float-card float-a group relative w-28 md:w-36 rounded-3xl overflow-hidden shadow-2xl shadow-black/40 cursor-pointer flex-shrink-0 -mb-6',
+        activeCategoryId === category.id ? 'is-active' : '']" v-bind:style="{ height: cardHeight }" role="button"
+        tabindex="0" aria-label="Nature travel — click to preview" @click="emit('setHeroBg', category.id)"
+        @keydown.enter="emit('setHeroBg', category.id)">
+
+        <NuxtImg format="webp" loading="lazy" fetchpriority="low"
+            :src="category?.featured_image?.url || '/imgs/no-image.jpg'" :alt="category.name"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" aria-hidden="true">
         </div>
-        <div class="absolute bottom-3 left-3"><span
-                class="text-white text-xs font-bold tracking-wider uppercase">{{ article.category }}</span>
+        <div class="absolute bottom-3 left-3"><span class="text-white text-xs font-bold tracking-wider uppercase">{{
+            category.name }}</span>
         </div>
-        <div v-if="activeArticleId === article.id"
+        <div v-if="activeCategoryId === category.id"
             class="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-[#7ec8e3] flex items-center justify-center shadow-lg">
             <svg class="w-3 h-3 text-[#1a1a1a]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"
                 aria-hidden="true">
@@ -24,15 +24,19 @@
 
 <script setup lang="ts">
 
-interface IFeatureArticleProps {
-    activeArticleId: number | null;
-    article: IArticle;
+
+
+interface IFeatureCategoryProps {
+    activeCategoryId: number | null;
+    category: ICategory;
 };
-interface IFeatureArticleEmits {
+interface IFeatureCategoryEmits {
     setHeroBg: [index: number];
 }
-const props = defineProps<IFeatureArticleProps>();
-const emit = defineEmits<IFeatureArticleEmits>();
+const props = defineProps<IFeatureCategoryProps>();
+const emit = defineEmits<IFeatureCategoryEmits>();
+
+
 
 
 // Generate random height between 288px and 450px (or custom range)
