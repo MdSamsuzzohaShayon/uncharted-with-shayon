@@ -3,14 +3,23 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss', '@nuxt/image'],
-  
+
+  components: [
+    {
+      path: '~/components/article',
+      pathPrefix: false, // optional
+    },
+  ],
+
   runtimeConfig: {
     public: {
       // those variables will be overriden from .env file
       backendApi: '',
+      // GEOAPIFY_API_KEY
       geoapifyApiKey: '',
       geoapifyAutocompleteUrl: '',
-      accessToken: ''
+      accessToken: '',
+      fullAccessToken: ''
     },
   },
 

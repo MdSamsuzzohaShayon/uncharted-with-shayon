@@ -527,7 +527,7 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.RichText;
+    description: Schema.Attribute.RichText & Schema.Attribute.Required;
     featured_image: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     > &

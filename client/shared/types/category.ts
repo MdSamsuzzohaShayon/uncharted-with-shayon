@@ -1,6 +1,7 @@
+import type { IDocument } from "./element";
 import type { IImage } from "./image";
 
-export interface ICategory{
+export interface ICategory extends IDocument{
     id: number;
     name: string;
     slug: number;

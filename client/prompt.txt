@@ -1,67 +1,1395 @@
-Design a visually stunning, interactive, animated, responsive hero section for a single article page. 
-The hero should use data from the following interface:
+I am building a blog application with the following stack:
+- Backend: Strapi
+- Frontend: Nuxt.js 4
+- Styling: Tailwind CSS + custom SCSS
 
-export interface IArticle {
-    id: number;
-    title: string;
-    featured_image?: IImage;
-    slug: string;
-    description: string;
-    published_date: string;
-    travel_cost?: string;
-    best_time?: string;
-    location: string;
-    views: number;
-    meta_title?: string;
-    meta_description?: string;
-    og_image?: string;
-    canonical_url?: string;
-    map_lat?: number;
-    map_lng?: number;
-    youtube_url?: string;
-    category: any;
+I will provide the full implementation of my Home Page, including Vue components, SCSS files, and overall project structure.
+
+Your responsibilities:
+1. Carefully analyze and remember the coding style, component structure, naming conventions, and design patterns used in the Home Page.
+2. Reuse existing SCSS styles as much as possible instead of creating new ones.
+3. Maintain consistency with the existing UI/UX, layout, and responsiveness.
+4. Follow best practices for Nuxt.js, TypeScript (if applicable), and component-based architecture.
+
+Later, I will ask you to create additional pages:
+- I will specify which page to build.
+- I may provide content and API structure.
+- If dynamic data fetching is not provided, use realistic dummy data.
+
+Important:
+- Do NOT change the existing design system.
+- Keep everything consistent with the Home Page implementation.
+- Write clean, maintainable, and scalable code.
+
+
+Folder Structure:
+```
+client/
+├── app/
+│   ├── app.vue
+│   ├── error.vue
+│
+│   ├── assets/
+│   │   ├── icons/
+│   │   ├── images/
+│   │   └── scss/
+│   │       ├── base/          # reset, typography
+│   │       ├── components/    # reusable styles
+│   │       ├── layouts/       # layout styles
+│   │       ├── pages/         # page-specific styles
+│   │       └── main.scss
+│
+│   ├── components/
+│   │   ├── common/            # buttons, cards, inputs
+│   │   ├── layout/            # header, footer, navbar
+│   │   ├── blog/              # article, category, tags
+│   │   └── ui/                # small reusable UI pieces
+│
+│   ├── composables/
+│   │   ├── api/               # API calls (Strapi)
+│   │   ├── useFetchData.ts
+│   │   ├── usePagination.ts
+│   │   └── useSeo.ts
+│
+│   ├── layouts/
+│   │   ├── default.vue
+│   │   ├── blog.vue
+│   │   └── auth.vue
+│
+│   ├── pages/
+│   │   ├── index.vue
+│   │
+│   │   ├── about/
+│   │   │   └── index.vue
+│   │
+│   │   ├── articles/
+│   │   │   ├── index.vue
+│   │   │   └── [slug].vue
+│   │
+│   │   ├── category/
+│   │   │   └── [categoryId].vue
+│   │
+│   │   ├── destination/
+│   │   │   └── [destinationId].vue
+│   │
+│   │   ├── search/
+│   │   │   └── index.vue
+│   │
+│   │   ├── gallery/
+│   │   │   └── index.vue
+│   │
+│   │   ├── legal/
+│   │   │   ├── privacy-policy.vue
+│   │   │   ├── terms.vue
+│   │   │   └── cookie-policy.vue
+│   │
+│   │   └── [...slug].vue      # catch-all dynamic pages
+│
+│   ├── plugins/
+│   │   ├── axios.ts (or fetch wrapper)
+│   │   ├── swiper.ts
+│   │   └── init.client.ts
+│
+│   ├── middleware/
+│   │   └── auth.ts
+│
+│   └── utils/
+│       ├── helpers.ts
+│       ├── constants.ts
+│       └── formatters.ts
+│
+├── public/
+│   ├── images/
+│   └── favicon.ico
+│
+├── shared/
+│   ├── types/
+│   │   ├── article.ts
+│   │   ├── category.ts
+│   │   └── api.ts
+│   └── interfaces/
+│
+├── server/                   # (optional Nuxt server routes)
+│   └── api/
+│
+├── .env
+├── nuxt.config.ts
+├── tsconfig.json
+└── package.json
+```
+
+
+
+
+pages/index.vue:
+
+```
+<template>
+    <div class="w-full">
+        <!-- ================================================================
+           HERO SECTION
+      ================================================================ -->
+        <header>
+            <!-- // relative mx-6 md:mx-12 lg:mx-20 mb-20 rounded-3xl overflow-hidden -->
+            <section class="relative min-h-screen flex flex-col overflow-hidden" aria-label="Hero">
+
+                <!-- Background image with cross-fade -->
+                <div class="absolute inset-0 z-0" aria-hidden="true">
+                    <img :src="heroBg" alt="Scenic adventure landscape" class="hero-bg-image w-full h-full object-cover"
+                        :class="{ 'is-fading': bgFading }" fetchpriority="high" />
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#1a1a1a]/72 via-[#1a4a6b]/40 to-[#0f2a3f]/60">
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-[#f9fafc] to-transparent">
+                    </div>
+                </div>
+
+                <!-- ====== NAVBAR ====== -->
+                <Navbar />
+
+                <!-- ====== HERO CONTENT ====== -->
+                <main>
+                    <div class="relative z-10 flex-1 flex items-center px-6 md:px-12 lg:px-20 pb-32 pt-8">
+                        <div class="w-full flex flex-col lg:flex-row items-center justify-between gap-12">
+
+                            <!-- Left: Headline -->
+                            <div class="max-w-xl lg:max-w-none lg:w-5/12 text-center lg:text-left">
+                                <p
+                                    class="anim-hero-label text-[#7ec8e3] text-sm font-semibold tracking-[0.2em] uppercase mb-4 flex items-center justify-center lg:justify-start gap-2">
+                                    <span class="w-6 h-px bg-[#7ec8e3]" aria-hidden="true"></span>
+                                    Travel & Adventure Blog
+                                </p>
+                                <h1 class="anim-hero-h1 font-display font-black text-white leading-none">
+                                    <span class="block text-7xl md:text-8xl lg:text-9xl tracking-tighter">EXPLORE</span>
+                                    <span
+                                        class="block text-4xl md:text-5xl lg:text-6xl tracking-widest text-[#7ec8e3] mt-1">THE
+                                        WORLD</span>
+                                </h1>
+                                <p
+                                    class="anim-hero-body text-white/70 text-base md:text-lg mt-6 leading-relaxed max-w-md mx-auto lg:mx-0">
+                                    Unscripted journeys, raw landscapes, and stories from the road. Join Shayon's
+                                    adventures across the
+                                    globe.
+                                </p>
+                                <div
+                                    class="anim-hero-cta flex flex-col sm:flex-row gap-3 mt-8 justify-center lg:justify-start">
+                                    <a href="/stories"
+                                        class="px-7 py-3.5 bg-[#7ec8e3] hover:bg-[#5bb8d4] text-[#1a1a1a] font-semibold rounded-full text-sm tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-[#7ec8e3]/30 hover:-translate-y-0.5 active:scale-95 text-center">
+                                        Start Exploring →
+                                    </a>
+                                    <button
+                                        class="px-7 py-3.5 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold rounded-full text-sm tracking-wide border border-white/20 transition-all duration-300 hover:-translate-y-0.5 active:scale-95">
+                                        Watch Stories
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Right: Floating Image Cards -->
+                            <div class="anim-cards-wrap relative w-full lg:w-7/12 h-[420px] md:h-[500px] flex items-center justify-end"
+                                aria-label="Featured travel destinations">
+                                <div class="flex gap-3 md:gap-4 items-end justify-center">
+
+                                    <FeatureCategory v-for="cat, i in categories"
+                                        v-bind:active-category-id="activeCategoryId" v-bind:category="cat"
+                                        v-on:set-hero-bg="setHeroBg" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </main>
+
+                <!-- ====== CATEGORY FILTER BAR ====== -->
+                <div class="absolute bottom-0 left-0 right-0 z-20 px-6 md:px-12 lg:px-20 pb-6" role="navigation"
+                    aria-label="Category filter">
+                    <div
+                        class="bg-white/92 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/10 border border-[#e5e7eb] px-4 md:px-8 py-4 flex items-center gap-2 md:gap-4 overflow-x-auto scrollbar-hide">
+                        <span
+                            class="text-[#555555] text-xs font-semibold tracking-widest uppercase whitespace-nowrap mr-2 hidden md:block"
+                            aria-hidden="true">Explore</span>
+                        <div class="w-px h-6 bg-[#e5e7eb] hidden md:block" aria-hidden="true"></div>
+                        <button v-for="(act, i) in activities" :key="act.id" 
+                        :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
+                            activeCategory === i
+                                ? 'cat-btn-active bg-[#1a4a6b] text-white shadow-md shadow-[#1a4a6b]/20'
+                                : 'hover:bg-[#f9fafc] text-[#555555] hover:text-[#1a1a1a] hover:scale-105']"
+                            :aria-pressed="activeCategory === i" :aria-label="`Filter by ${act.name}`"
+                            @click="activeCategory = i">
+                            <span :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0',
+                                // act.bg
+                            ]" aria-hidden="true"><NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" /></span>
+                            {{ act.name }}
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+        </header>
+
+
+        <!-- ================================================================
+           FEATURED POSTS
+      ================================================================ -->
+        <section class="px-6 md:px-12 lg:px-20 pt-16 pb-20" aria-labelledby="latest-stories-heading">
+            <div class="flex items-end justify-between mb-10">
+                <div>
+                    <p class="text-[#7ec8e3] text-xs font-semibold tracking-[0.2em] uppercase mb-2 flex items-center gap-2"
+                        aria-hidden="true">
+                        <span class="w-5 h-px bg-[#7ec8e3]"></span> Latest Stories
+                    </p>
+                    <h2 id="latest-stories-heading"
+                        class="font-display font-bold text-[#1a1a1a] text-3xl md:text-4xl tracking-tight">
+                        Fresh from the Road
+                    </h2>
+                </div>
+                <a href="/stories"
+                    class="hidden md:flex items-center gap-2 text-[#555555] text-sm font-medium hover:text-[#1a1a1a] transition-colors duration-200 group">
+                    View All
+                    <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none"
+                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.id)"
+                    class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
+
+                    <div class="relative h-72 md:h-80 overflow-hidden">
+                        <NuxtImg format="webp" loading="lazy" fetchpriority="low"
+                            :src="firstArticle?.featured_image?.url || '/imgs/no-image.jpg'" :alt="firstArticle.title"
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+
+                        <span
+                            class="absolute top-4 left-4 bg-[#7ec8e3] text-[#1a1a1a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+                            {{ firstArticle.category }}
+                        </span>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <time class="text-[#555555] text-xs">
+                                {{ firstArticle.published_date }}
+                            </time>
+                        </div>
+
+                        <h3
+                            class="font-display font-bold text-[#1a1a1a] text-xl md:text-2xl leading-snug mb-3 group-hover:text-[#1a4a6b] transition-colors duration-300">
+                            {{ firstArticle.title }}
+                        </h3>
+
+                        <p class="text-[#555555] text-sm leading-relaxed line-clamp-2">
+                            {{ firstArticle.description }}
+                        </p>
+                    </div>
+                </NuxtLink>
+
+                <div class="flex flex-col gap-6">
+                    <NuxtLink v-for="article in nextTwoArticles" :key="article.id"
+                        v-bind:href="article?.slug || String(article.id)"
+                        class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
+
+                        <div class="relative h-44 overflow-hidden">
+                            <NuxtImg :src="article?.featured_image?.url || '/imgs/no-image.jpg'" format="webp"
+                                loading="lazy" fetchpriority="low" :alt="article.title"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                            <span
+                                class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                {{ article.category }}
+                            </span>
+                        </div>
+
+                        <div class="p-4 flex-1 flex flex-col">
+                            <time class="text-[#555555] text-xs mb-1.5">
+                                {{ article.published_date }}
+                            </time>
+
+                            <h3
+                                class="font-display font-bold text-[#1a1a1a] text-base leading-snug group-hover:text-[#1a4a6b] transition-colors duration-300 flex-1">
+                                {{ article.title }}
+                            </h3>
+                        </div>
+                    </NuxtLink>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================================================================
+           DESTINATIONS MARQUEE
+      ================================================================ -->
+        <div class="bg-[#1a1a1a] py-5 overflow-hidden" aria-hidden="true">
+            <div class="marquee-track flex gap-8 whitespace-nowrap">
+                <span v-for="(dest, i) in [...destinations, ...destinations]" :key="`${dest}-${i}`"
+                    class="text-white/30 text-sm font-semibold tracking-[0.3em] uppercase flex-shrink-0 flex items-center gap-8">
+                    {{ dest }}
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#7ec8e3]/60 inline-block"></span>
+                </span>
+            </div>
+        </div>
+
+
+        <!-- ================================================================
+           PHOTO JOURNAL MOSAIC
+      ================================================================ -->
+        <section class="px-6 md:px-12 lg:px-20 py-20 bg-[#f9fafc]" aria-labelledby="photo-journal-heading">
+            <div class="text-center mb-12">
+                <p class="text-[#7ec8e3] text-xs font-semibold tracking-[0.2em] uppercase mb-3 flex items-center justify-center gap-2"
+                    aria-hidden="true">
+                    <span class="w-5 h-px bg-[#7ec8e3]"></span> Photo Journal <span
+                        class="w-5 h-px bg-[#7ec8e3]"></span>
+                </p>
+                <h2 id="photo-journal-heading"
+                    class="font-display font-bold text-[#1a1a1a] text-3xl md:text-4xl tracking-tight">
+                    Moments from the Journey
+                </h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-3 md:gap-4 h-[480px] md:h-[560px]">
+                <figure v-for="(photo, i) in galleryPhotos" :key="i"
+                    :class="['group relative rounded-2xl overflow-hidden cursor-pointer', photo.span]">
+                    <img :src="photo.src" :alt="photo.alt"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy" />
+                    <figcaption class="absolute inset-0 flex items-end p-3">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            aria-hidden="true"></div>
+                        <p
+                            class="relative text-white text-sm font-bold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                            {{ photo.alt }}</p>
+                    </figcaption>
+                </figure>
+            </div>
+        </section>
+        <!-- <button @click="trackPurchase">
+            Complete Purchase
+        </button> -->
+
+    </div>
+</template>
+
+
+<script setup lang="ts">
+import type { IActivitiesResponse, IActivity, ICategoriesResponse, ICategory } from '~~/shared/types';
+
+
+
+// const { $gtm } = useNuxtApp()
+
+// const trackPurchase = () => {
+//     $gtm.push({
+//         event: 'purchase',
+//         transaction_id: 'ORDER_123',
+//         value: 99.99,
+//         currency: 'USD'
+//     })
+// }
+
+// ── SEO Meta ──────────────────────────────────
+useHead({
+    title: 'Uncharted with Shayon — Travel & Adventure Blog',
+    meta: [
+        { name: 'description', content: 'Unscripted journeys, raw landscapes, and travel stories from around the globe by Shayon.' },
+        { name: 'keywords', content: 'travel blog, adventure, destinations, hiking, Maldives, Himalayas, Kyoto, travel stories' },
+        { property: 'og:title', content: 'Uncharted with Shayon — Travel & Adventure Blog' },
+        { property: 'og:description', content: 'Unscripted journeys and stories from the road.' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:image', content: 'https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Uncharted with Shayon' },
+        { name: 'twitter:description', content: 'Unscripted journeys, raw landscapes, travel stories.' },
+    ],
+    link: [{ rel: 'canonical', href: 'https://uncharted.webdevlab.org' }]
+})
+
+// ── Search ────────────────────────────────────
+const defaultBg = ref<string>("https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp");
+const heroBg = ref(defaultBg.value);
+const bgFading = ref(false);
+const activeCategoryId = ref<null | number>(null);
+const categories = ref<ICategory[]>([]);
+const activities = ref<IActivity[]>([]);
+
+function setHeroBg(categoryId: number) {
+    // Setting default
+    if (activeCategoryId.value === categoryId) {
+        activeCategoryId.value = -1;
+        crossFadeBg(defaultBg.value);
+        return
+    }
+    activeCategoryId.value = categoryId;
+
+    const bgCategory = categories.value.find((a) => a.id === categoryId);
+    if (bgCategory) {
+        crossFadeBg(bgCategory.featured_image?.url || null);
+    }
+}
+function crossFadeBg(src: string | null) {
+    if (!src) return;
+    bgFading.value = true
+    setTimeout(() => { heroBg.value = src; bgFading.value = false }, 420)
 }
 
-Requirements:
+// ── Categories ────────────────────────────────
+const activeCategory = ref(0)
 
-1. **Hero Layout**
-   - Full-screen or large hero section with the featured image as a background.
-   - Overlay gradient for readability.
-   - Parallax scrolling effect on the background image.
-   - Foreground content block for text and metadata.
+// ── Posts ─────────────────────────────────────
 
-2. **Content to Display**
-   - Article Title (`title`) with large, bold typography.
-   - Location (`location`) badge with hover map preview using `map_lat` & `map_lng`.
-   - Views (`views`) counter animated from 0 to value.
-   - Published Date (`published_date`), Travel Cost (`travel_cost`), Best Time to Visit (`best_time`), Reading Time (computed).
-   - Author detail card (avatar + name + social links).
-   - Optional YouTube video thumbnail if `youtube_url` exists.
-   - Category tags (`category`) with hover animation.
+// ── Marquee ───────────────────────────────────
+const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
 
-3. **Animations & Interactions**
-   - Fade-in / slide-in text and stats.
-   - Hover effects on badges, buttons, and author card.
-   - Animated counters for stats.
-   - Optional floating or sliding image gallery thumbnails.
+// ── Gallery ───────────────────────────────────
+const galleryPhotos = [
+    { src: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', alt: 'Swiss Alps panorama at golden hour', span: 'col-span-1 row-span-2' },
+    { src: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80', alt: 'Santorini white domes overlooking the Aegean', span: 'col-span-2 row-span-1' },
+    { src: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600&q=80', alt: 'Bali terraced rice fields at sunrise', span: 'col-span-1 row-span-1' },
+    { src: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80', alt: 'Misty forest trail in the Pacific Northwest', span: 'col-span-1 row-span-1' },
+    { src: 'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80', alt: 'Aurora borealis over an Icelandic snowscape', span: 'col-span-2 row-span-1' },
+]
 
-4. **Responsive Design**
-   - Mobile: single-column layout, horizontal scroll for stats cards.
-   - Tablet: two-column layout.
-   - Desktop: full-screen hero with overlaid content.
+// Fetch Latest 3 Articles (with caching)
+const config = useRuntimeConfig()
 
-5. **Styling**
-   - Soft gradients, accent colors, subtle shadows for microinteractions.
-   - Clean typography: bold serif/sans-serif for title, readable sans-serif for stats.
-   - Optional dynamic effects like particles or animated shapes in the background.
+const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
+    "latest-articles", // ✅ cache key (important)
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/articles`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
+            params: {
+                sort: ["published_date:desc"], // latest first
+                pagination: { limit: 3 }, // only 3 posts
+                populate: ["featured_image",
+                    // "category"
+                ],
+            },
+        })
+    }
+);
 
-6. **Output**
-   - Provide a structured layout description.
-   - Include interactive/animated behaviors.
-   - Suggest HTML/CSS (or TailwindCSS) structure with animation hints if possible.
-   - Include example mapping of `IArticle` fields to UI elements.
 
-Make it unique, modern, and visually engaging.
+const firstArticle = computed(() => {
+    return latestArticles.value?.data?.[0] ?? null
+})
+
+const nextTwoArticles = computed(() => {
+    return latestArticles.value?.data?.slice(1, 3) ?? []
+})
+
+
+
+
+const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
+    "categories", // ✅ cache key
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/categories`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
+            params: {
+                populate: "*", // populate all relations (e.g., articles)
+                // sort: ["name:asc"], // optional: sort categories alphabetically
+                // pagination: { limit: 100 }, // optional: limit results
+            },
+        })
+    }
+)
+
+
+
+// Watch for data changes and update categories
+watch(categoriesData, (newData) => {
+    if (newData?.data) {
+        categories.value = newData.data
+    }
+}, { immediate: true });
+
+
+
+const { data: activitiesData } = await useAsyncData<IActivitiesResponse>(
+    "activities", // ✅ cache key
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/activities`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+            },
+            params: {
+                populate: "*", // populate all relations (e.g., articles)
+                // sort: ["name:asc"], // optional: sort activities alphabetically
+                // pagination: { limit: 100 }, // optional: limit results
+            },
+        })
+    }
+)
+
+
+
+// Watch for data changes and update categories
+watch(activitiesData, (newData) => {
+    if (newData?.data) {
+        activities.value = newData.data
+    }
+}, { immediate: true });
+
+
+
+</script>
+
+<style scoped lang="scss">
+@use "~/assets/scss/home.scss";
+</style>
+```
+
+
+assets/scss/home.scss:
+
+```
+// ============================================================
+// home.scss — Uncharted with Shayon
+// Only styles that Tailwind cannot express are placed here.
+// Everything visual/layout is still driven by Tailwind classes.
+// ============================================================
+
+// ============================================================
+// Main Stylesheet Entry Point
+// Uncharted with Shayon
+// ============================================================
+
+
+// 1. Configuration & Variables (must come first)
+@use 'variables';
+@use 'mixins';
+@use 'animations';
+@use 'components';
+@use 'utilities';
+@use 'pages/home';
+
+// 3. Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
+// 4. Global Base Styles
+// * {
+//   margin: 0;
+//   padding: 0;
+//   box-sizing: border-box;
+// }
+
+body {
+  // @include font-body; // temp
+  // background: color('bg'); // temp
+  // color: color('text-primary'); // temp
+  overflow-x: hidden;
+}
+
+
+
+```
+
+assets/scss/pages/_home.scss:
+
+```
+@use '../mixins' as *;
+
+// ============================================================
+// Home Page Specific Styles
+// ============================================================
+
+// Hero Section
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+// Animation Stagger for Hero Content
+.anim-hero-label {
+    @include fade-in-up(0.1s, 'normal');
+}
+
+.anim-hero-h1 {
+    @include fade-in-up(0.25s, 'normal');
+}
+
+.anim-hero-body {
+    @include fade-in-up(0.45s, 'normal');
+}
+
+.anim-hero-cta {
+    @include fade-in-up(0.6s, 'normal');
+}
+
+.anim-cards-wrap {
+    @include fade-in-up(0.35s, 'normal');
+}
+
+// Category Filter Bar
+.category-filter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: z-index('content');
+
+    .filter-container {
+        background: rgba(255, 255, 255, 0.92);
+        @include backdrop-blur(12px);
+        border-radius: 1rem;
+        // border: 1px solid color('border'); // temp
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// Featured Posts Grid
+.featured-posts {
+    .featured-post-card {
+        @include card-base;
+
+        &:hover {
+            transform: translateY(-4px);
+        }
+    }
+}
+
+// Photo Journal Mosaic
+.photo-journal {
+    .journal-figure {
+        @include transition((transform), 'fast');
+
+        &:hover {
+            transform: scale(1.02);
+        }
+
+        figcaption {
+            p {
+                @include transition((opacity, transform), 'normal');
+            }
+        }
+    }
+}
+
+// Newsletter Section
+.newsletter-section {
+    .newsletter-form {
+        input {
+            @include transition((background-color, border-color), 'fast');
+
+            &:focus {
+                // border-color: color('accent');// temp
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        button {
+            @include transition((all), 'fast');
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(126, 200, 227, 0.3);
+            }
+
+            &:active {
+                transform: scale(0.95);
+            }
+        }
+    }
+}
+
+// Footer
+.footer {
+    // background: color('text-primary'); // temp
+    // color: color('white');  // temp
+
+    .footer-link {
+        @include transition((color), 'fast');
+
+        // &:hover {
+        //     color: color('accent');
+        // } // temp
+    }
+}
+```
+
+assets/scss/_animations.scss:
+```
+
+@use 'variables' as *;
+@use 'mixins' as *;  // Add this line to import mixins
+
+// ============================================================
+// Keyframes & Animations
+// ============================================================
+
+// Floating Animations
+@keyframes float-a {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-12px) rotate(0.4deg);
+    }
+
+    66% {
+        transform: translateY(-6px) rotate(-0.3deg);
+    }
+}
+
+@keyframes float-b {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    40% {
+        transform: translateY(-18px) rotate(-0.5deg);
+    }
+
+    70% {
+        transform: translateY(-8px) rotate(0.2deg);
+    }
+}
+
+@keyframes float-c {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(0.6deg);
+    }
+}
+
+// Page Load Animations
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Marquee Animation
+@keyframes marquee-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+// Pulse Animation
+@keyframes pill-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(26, 74, 107, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(26, 74, 107, 0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+// Ripple Effect
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+// Animation Utility Classes
+.animate-fade-in {
+    animation: fade-in duration('normal') easing('default') both;
+}
+
+.animate-fade-in-up {
+    @include fade-in-up();
+}
+
+.animate-scale-in {
+    animation: scale-in duration('normal') easing('bounce') both;
+}
+
+// Stagger Children
+@mixin stagger-children($item-selector, $start-delay: 0s, $delay-increment: 0.05s) {
+    @for $i from 1 through 20 {
+        #{$item-selector}:nth-child(#{$i}) {
+            animation-delay: $start-delay + ($i - 1) * $delay-increment;
+        }
+    }
+}
+```
+
+assets/scss/_components.scss file:
+
+```
+@use 'variables' as *;
+@use 'mixins' as *;  // Add this line to import mixins
+
+// ============================================================
+// Reusable Component Styles
+// ============================================================
+
+// Hero Background
+.hero-bg-image {
+    @include transition((opacity), 'hero', 'smooth');
+
+    &.is-fading {
+        opacity: 0;
+    }
+}
+
+// Floating Cards
+.float-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    @include transition((box-shadow), 'fast');
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(126, 200, 227, 0.35) 0%, transparent 70%);
+        opacity: 0;
+        @include transition((opacity), 'normal');
+        pointer-events: none;
+    }
+
+    &.is-active {
+        &::after {
+            opacity: 1;
+        }
+
+        // box-shadow: 0 0 0 2px color('accent'),
+        // 0 20px 60px rgba(0, 0, 0, 0.5),
+        // 0 0 40px rgba(126, 200, 227, 0.25); // temp
+    }
+
+    &:hover {
+        animation-play-state: paused;
+    }
+}
+
+// Floating Animation Classes
+.float-a {
+    @include floating-animation(float-a, 7s, 0s);
+}
+
+.float-b {
+    @include floating-animation(float-b, 8s, 1.2s);
+}
+
+.float-c {
+    @include floating-animation(float-c, 6.5s, 2.4s);
+}
+
+.float-d {
+    @include floating-animation(float-a, 9s, 0.6s);
+}
+
+// Search Overlay
+.search-overlay {
+    @include backdrop-blur(16px);
+    @include transition((opacity, visibility), 'normal', 'smooth');
+    position: fixed;
+    inset: 0;
+    z-index: z-index('modal');
+
+    &.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    &.is-visible {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+    }
+}
+
+.search-panel {
+    @include transition((transform, opacity), 'normal', 'bounce');
+
+    .is-hidden & {
+        transform: translateY(-24px) scale(0.97);
+        opacity: 0;
+    }
+
+    .is-visible & {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.search-input-wrapper {
+    position: relative;
+
+    &::after {
+        content: '';
+        display: block;
+        height: 2px;
+        // background: linear-gradient(90deg, color('accent'), color('accent-dark')); // temp
+        transform: scaleX(0);
+        transform-origin: left;
+        @include transition((transform), 'normal', 'smooth');
+        margin-top: -2px;
+    }
+
+    &:focus-within::after {
+        transform: scaleX(1);
+    }
+}
+
+.search-result-item {
+    @include transition((background, padding-left), 'fast');
+    cursor: pointer;
+
+    &:hover {
+        padding-left: 1.25rem;
+        background: rgba(126, 200, 227, 0.08);
+    }
+}
+
+// Marquee
+.marquee-track {
+    animation: marquee-scroll duration('marquee') linear infinite;
+
+    &:hover {
+        animation-play-state: paused;
+    }
+}
+
+// Category Buttons
+.cat-btn-active {
+    animation: pill-pulse 2.5s ease-in-out infinite;
+}
+
+// Card Ripple Effect (optional - for future use)
+.ripple {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s, opacity 0.6s;
+    }
+
+    &:active::after {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+    }
+}
+```
+
+assets/scss/_mixins.scss:
+
+```
+// ============================================================
+// Mixins & Functions
+// ============================================================
+
+@use 'sass:map';
+@use 'sass:list';
+@use 'sass:color';
+@use 'variables' as *;
+
+// Media Query Mixins
+@mixin respond-to($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @media (min-width: map.get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+@mixin respond-below($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    // @media (max-width: map.get($breakpoints, $breakpoint) - 1px) {
+    //   @content;
+    // }
+  } @else {
+    @warn "Breakpoint `#{$breakpoint}` not found in $breakpoints map.";
+  }
+}
+
+// Typography Mixins
+@mixin font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+@mixin font-body {
+  font-family: 'DM Sans', sans-serif;
+}
+
+@mixin text-truncate($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// Animation Mixins
+@mixin transition($properties, $duration: 'normal', $easing: 'default') {
+  $transition-properties: ();
+  
+  @each $property in $properties {
+    $transition-properties: list.append($transition-properties, $property duration($duration) easing($easing), comma);
+  }
+  
+  transition: $transition-properties;
+}
+
+@mixin fade-in-up($delay: 0s, $duration: 'normal') {
+  animation: fade-in-up duration($duration) easing('ease-out') $delay both;
+}
+
+@mixin floating-animation($name, $duration: 7s, $delay: 0s) {
+  animation: $name $duration ease-in-out infinite $delay;
+}
+
+// Layout Mixins
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin gradient-overlay($direction: to bottom, $start-opacity: 0.75, $end-opacity: 0) {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient($direction, rgba(0, 0, 0, $start-opacity), rgba(0, 0, 0, $end-opacity));
+}
+
+// Card Styles
+@mixin card-base {
+    // background: color('card-bg'); // temp
+    // border: 1px solid color('border'); // temp
+    border-radius: 1rem;
+    overflow: hidden;
+    @include transition((box-shadow, transform), 'fast');
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+// Interactive Elements
+@mixin interactive-scale($scale: 1.05) {
+  @include transition((transform), 'fast');
+  
+  &:hover {
+    transform: scale($scale);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Backdrop Blur
+@mixin backdrop-blur($blur: 16px) {
+  backdrop-filter: blur($blur) saturate(1.4);
+  -webkit-backdrop-filter: blur($blur) saturate(1.4);
+}
+
+// Hide Scrollbar
+@mixin hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+```
+
+assets/scss/_utilitis.scss:
+
+```
+@use 'variables' as *;
+@use 'mixins' as *;  // Add this line to import mixins
+
+// ============================================================
+// Utility Classes
+// ============================================================
+
+// Font Utilities
+.font-display {
+    @include font-display;
+}
+
+.font-body {
+    // @include font-body; // temp
+}
+
+// Text Utilities
+.line-clamp-1 {
+    @include text-truncate(1);
+}
+
+.line-clamp-2 {
+    @include text-truncate(2);
+}
+
+.line-clamp-3 {
+    @include text-truncate(3);
+}
+
+// Scrollbar Hide
+.scrollbar-hide {
+    @include hide-scrollbar;
+}
+
+// Accessibility
+:focus-visible {
+    // outline: 2px solid color('accent');  // temp
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+// Gradient Overlays (reusable)
+.gradient-overlay {
+    @include gradient-overlay(to bottom, 0.75, 0);
+}
+
+.gradient-overlay-light {
+    @include gradient-overlay(to top, 0.5, 0);
+}
+
+// Flex Utilities
+.flex-center {
+    @include flex-center;
+}
+
+.absolute-center {
+    @include absolute-center;
+}
+
+// Interactive Utilities
+.interactive-scale {
+    @include interactive-scale(1.05);
+}
+
+// Backdrop Utilities
+.backdrop-blur-sm {
+    @include backdrop-blur(8px);
+}
+
+.backdrop-blur-md {
+    @include backdrop-blur(12px);
+}
+
+.backdrop-blur-lg {
+    @include backdrop-blur(16px);
+}
+
+.backdrop-blur-xl {
+    @include backdrop-blur(24px);
+}
+
+// Transition Utilities (reusable classes)
+.transition-all {
+    @include transition((all), 'normal', 'default');
+}
+
+.transition-transform {
+    @include transition((transform), 'fast', 'default');
+}
+
+.transition-opacity {
+    @include transition((opacity), 'normal', 'default');
+}
+
+.transition-colors {
+    @include transition((color, background-color, border-color), 'fast', 'default');
+}
+
+// Loading States
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+```
+
+assets/scss/_variables.scss:
+
+```
+// ============================================================
+// Variables & Configuration
+// ============================================================
+
+@use 'sass:map';
+@use 'sass:color';
+
+// Color System
+$colors: (
+  'bg': #f9fafc,
+  'card-bg': #ffffff,
+  'text-primary': #1a1a1a,
+  'text-secondary': #555555,
+  'border': #e5e7eb,
+  'accent': #7ec8e3,
+  'accent-dark': #1a4a6b,
+  'white': #ffffff,
+  'black': #000000,
+);
+
+// Animation Durations
+$durations: (
+  'fast': 200ms,
+  'normal': 300ms,
+  'slow': 420ms,
+  'hero': 800ms,
+  'marquee': 28s,
+);
+
+// Animation Easing Curves
+$easings: (
+  'default': cubic-bezier(0.4, 0, 0.2, 1),
+  'bounce': cubic-bezier(0.34, 1.56, 0.64, 1),
+  'smooth': cubic-bezier(0.4, 0, 0.2, 1),
+  'ease-out': cubic-bezier(0, 0, 0.2, 1),
+  'ease-in': cubic-bezier(0.4, 0, 1, 1),
+);
+
+// Breakpoints
+$breakpoints: (
+  'sm': 640px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px,
+  '2xl': 1536px,
+);
+
+// Z-index Layers
+$z-layers: (
+  'base': 0,
+  'content': 10,
+  'overlay': 20,
+  'modal': 30,
+  'popup': 40,
+  'tooltip': 50,
+);
+
+// CSS Custom Properties (for runtime theming)
+:root {
+  @each $key, $value in $colors {
+    --#{$key}: #{$value};
+  }
+  
+  @each $key, $value in $durations {
+    --hero-transition-dur: #{$value};
+  }
+}
+
+// Function to get color values (returns actual color value, not CSS variable)
+@function color($key) {
+  @return map.get($colors, $key);
+}
+
+// Function to get CSS variable reference (for dynamic runtime theming)
+@function color-var($key) {
+  @return var(--#{$key});
+}
+
+// Function to get duration
+@function duration($key) {
+  @return map.get($durations, $key);
+}
+
+// Function to get easing
+@function easing($key) {
+  @return map.get($easings, $key);
+}
+
+// Function to get breakpoint
+@function breakpoint($key) {
+  @return map.get($breakpoints, $key);
+}
+
+// Function to get z-index
+@function z-index($key) {
+  @return map.get($z-layers, $key);
+}
+```
+
 
 
 
