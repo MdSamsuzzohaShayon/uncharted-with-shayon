@@ -50,7 +50,34 @@ export interface IArticleWithLocation extends IArticle {
 }
 
 // API response types
-export interface IArticleBySlugResponse extends IStrapiResponse<IArticle> {}
+export interface IArticleBySlugResponse extends IStrapiResponse<IArticle> { }
 
 // Helper type for component use
 export type ArticleData = IArticle | null;
+
+export interface ILatestArticleResponse {
+    data: IArticle[];
+}
+
+export interface IFeaturedArticlesResponse {
+    data: IArticle[];
+    meta: {
+        pagination: {
+            start: number;
+            limit: number;
+            total: number;
+        }
+    };
+}
+
+export interface ILatestArticlesGrouped {
+    latestOne: IArticle | null;
+    latestTwo: IArticle | null;
+    latestThree: IArticle | null;
+    latestFour: IArticle | null;
+    latestFive: IArticle | null;
+}
+
+export interface IArticleSpan extends IArticle {
+    span: string;
+}

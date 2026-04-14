@@ -6,6 +6,10 @@ export default defineNuxtConfig({
 
   components: [
     {
+      path: '~/components',
+      pathPrefix: false, // optional
+    },
+    {
       path: '~/components/article',
       pathPrefix: false, // optional
     },

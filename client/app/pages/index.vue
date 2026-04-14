@@ -61,7 +61,6 @@
                             <div class="anim-cards-wrap relative w-full lg:w-7/12 h-[420px] md:h-[500px] flex items-center justify-end"
                                 aria-label="Featured travel destinations">
                                 <div class="flex gap-3 md:gap-4 items-end justify-center">
-
                                     <FeatureCategory v-for="cat, i in categories"
                                         v-bind:active-category-id="activeCategoryId" v-bind:category="cat"
                                         v-on:set-hero-bg="setHeroBg" />
@@ -81,8 +80,7 @@
                             class="text-[#555555] text-xs font-semibold tracking-widest uppercase whitespace-nowrap mr-2 hidden md:block"
                             aria-hidden="true">Explore</span>
                         <div class="w-px h-6 bg-[#e5e7eb] hidden md:block" aria-hidden="true"></div>
-                        <button v-for="(act, i) in activities" :key="act.id" 
-                        :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
+                        <button v-for="(act, i) in activities" :key="act.id" :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
                             activeCategory === i
                                 ? 'cat-btn-active bg-[#1a4a6b] text-white shadow-md shadow-[#1a4a6b]/20'
                                 : 'hover:bg-[#f9fafc] text-[#555555] hover:text-[#1a1a1a] hover:scale-105']"
@@ -90,7 +88,9 @@
                             @click="activeCategory = i">
                             <span :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0',
                                 // act.bg
-                            ]" aria-hidden="true"><NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" /></span>
+                            ]" aria-hidden="true">
+                                <NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" />
+                            </span>
                             {{ act.name }}
                         </button>
                     </div>
@@ -126,7 +126,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.id)"
+                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.documentId)"
                     class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
 
                     <div class="relative h-72 md:h-80 overflow-hidden">
@@ -135,9 +135,9 @@
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
 
-                        <span
+                        <span v-for="cat in firstArticle.categories"
                             class="absolute top-4 left-4 bg-[#7ec8e3] text-[#1a1a1a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                            {{ firstArticle.category }}
+                            {{ cat.name }}
                         </span>
                     </div>
 
@@ -160,8 +160,8 @@
                 </NuxtLink>
 
                 <div class="flex flex-col gap-6">
-                    <NuxtLink v-for="article in nextTwoArticles" :key="article.id"
-                        v-bind:href="article?.slug || String(article.id)"
+                    <NuxtLink v-if="nextTwoArticles && nextTwoArticles.length > 0" v-for="article in nextTwoArticles"
+                        :key="article.id" v-bind:href="article?.slug || String(article.id)"
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
 
                         <div class="relative h-44 overflow-hidden">
@@ -170,9 +170,10 @@
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
-                            <span
+
+                            <span v-for="cat in article.categories"
                                 class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                {{ article.category }}
+                                {{ cat.name }}
                             </span>
                         </div>
 
@@ -222,17 +223,17 @@
                 </h2>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-3 md:gap-4 h-[480px] md:h-[560px]">
-                <figure v-for="(photo, i) in galleryPhotos" :key="i"
-                    :class="['group relative rounded-2xl overflow-hidden cursor-pointer', photo.span]">
-                    <img :src="photo.src" :alt="photo.alt"
+                <figure v-for="(article, i) in latestGrouped" :key="i"
+                    :class="['group relative rounded-2xl overflow-hidden cursor-pointer', article.span]">
+                    <NuxtImg :src="article.featured_image?.url" :alt="article.title"
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy" />
+                        format="webp" loading="lazy" fetchpriority="low" />
                     <figcaption class="absolute inset-0 flex items-end p-3">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             aria-hidden="true"></div>
                         <p
                             class="relative text-white text-sm font-bold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                            {{ photo.alt }}</p>
+                            {{ article.title }}</p>
                     </figcaption>
                 </figure>
             </div>
@@ -246,20 +247,8 @@
 
 
 <script setup lang="ts">
-import type { IActivitiesResponse, IActivity, ICategoriesResponse, ICategory } from '~~/shared/types';
+import type { IActivitiesResponse, IActivity, IArticle, IArticleSpan, ICategoriesResponse, ICategory, ILatestArticleResponse, ILatestArticlesGrouped } from '~~/shared/types';
 
-
-
-// const { $gtm } = useNuxtApp()
-
-// const trackPurchase = () => {
-//     $gtm.push({
-//         event: 'purchase',
-//         transaction_id: 'ORDER_123',
-//         value: 99.99,
-//         currency: 'USD'
-//     })
-// }
 
 // ── SEO Meta ──────────────────────────────────
 useHead({
@@ -283,8 +272,121 @@ const defaultBg = ref<string>("https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.d
 const heroBg = ref(defaultBg.value);
 const bgFading = ref(false);
 const activeCategoryId = ref<null | number>(null);
-const categories = ref<ICategory[]>([]);
-const activities = ref<IActivity[]>([]);
+// ── Categories ────────────────────────────────
+const activeCategory = ref(0)
+
+// ── Posts ─────────────────────────────────────
+
+// ── Marquee ───────────────────────────────────
+const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
+
+
+
+// Fetch Latest 3 Articles (with caching)
+const config = useRuntimeConfig()
+
+// curl --location --globoff 'http://localhost:1337/api/articles?sort=published_date%3Adesc&fields=title%2Cslug&populate[featured_image][fields]=url'
+const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
+    "latest-articles",
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/articles`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`,
+            },
+            params: {
+                sort: ["published_date:desc"],
+                "fields[0]": "title",
+                "fields[1]": "slug",
+                "fields[2]": "documentId",
+                "fields[3]": "meta_title",
+                // meta_title
+
+                "pagination[limit]": 5,
+
+                "populate[featured_image][fields][0]": "url",
+            },
+        })
+    }
+);
+
+
+
+
+const latestGrouped = computed<IArticleSpan[]>(() => {
+
+    const spans = ['col-span-1 row-span-2',
+        'col-span-2 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-2 row-span-1',]
+
+    return (latestArticles.value?.data ?? []).map((article: IArticle, i: number) => ({
+        ...article,
+        span: spans[i] || "",
+    }))
+})
+
+
+
+
+// Fetch Featured Articles (3 articles for home page)
+const { data: featuredArticles, error: featuredError, pending: featuredPending } = await useAsyncData<IFeaturedArticlesResponse>(
+    "featured-articles",
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/featured-posts`, {
+            headers: {
+                Authorization: `Bearer ${config.public.fullAccessToken}`,
+            },
+            params: {
+                "pagination[start]": 0,
+                "pagination[limit]": 3,
+                "fields[0]": "title",
+                "fields[1]": "slug",
+                "fields[2]": "documentId",
+                "populate[featured_image][fields][0]": "url",
+                "populate[categories][fields][0]": "name",
+                "populate[categories][fields][1]": "slug",
+            }
+        })
+    }
+);
+
+
+
+const firstArticle = computed(() => {
+    return featuredArticles.value?.data?.[0] ?? null;
+})
+
+const nextTwoArticles = computed(() => {
+    return featuredArticles.value?.data?.slice(1, 3) ?? [];
+});
+
+
+
+
+const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
+    "categories",
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/categories`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`,
+            },
+            params: {
+                populate: "*",
+            },
+        })
+    }
+);
+
+
+
+
+
+// Watch for data changes and update categories
+const categories = computed(() => categoriesData.value?.data ?? []);
+
+
+
 
 function setHeroBg(categoryId: number) {
     // Setting default
@@ -306,107 +408,28 @@ function crossFadeBg(src: string | null) {
     setTimeout(() => { heroBg.value = src; bgFading.value = false }, 420)
 }
 
-// ── Categories ────────────────────────────────
-const activeCategory = ref(0)
-
-// ── Posts ─────────────────────────────────────
-
-// ── Marquee ───────────────────────────────────
-const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
-
-// ── Gallery ───────────────────────────────────
-const galleryPhotos = [
-    { src: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', alt: 'Swiss Alps panorama at golden hour', span: 'col-span-1 row-span-2' },
-    { src: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80', alt: 'Santorini white domes overlooking the Aegean', span: 'col-span-2 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600&q=80', alt: 'Bali terraced rice fields at sunrise', span: 'col-span-1 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80', alt: 'Misty forest trail in the Pacific Northwest', span: 'col-span-1 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80', alt: 'Aurora borealis over an Icelandic snowscape', span: 'col-span-2 row-span-1' },
-]
-
-// Fetch Latest 3 Articles (with caching)
-const config = useRuntimeConfig()
-
-const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
-    "latest-articles", // ✅ cache key (important)
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/articles`, {
-            headers: {
-                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
-            },
-            params: {
-                sort: ["published_date:desc"], // latest first
-                pagination: { limit: 3 }, // only 3 posts
-                populate: ["featured_image",
-                    // "category"
-                ],
-            },
-        })
-    }
-);
-
-
-const firstArticle = computed(() => {
-    return latestArticles.value?.data?.[0] ?? null
-})
-
-const nextTwoArticles = computed(() => {
-    return latestArticles.value?.data?.slice(1, 3) ?? []
-})
-
-
-
-
-const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
-    "categories", // ✅ cache key
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/categories`, {
-            headers: {
-                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
-            },
-            params: {
-                populate: "*", // populate all relations (e.g., articles)
-                // sort: ["name:asc"], // optional: sort categories alphabetically
-                // pagination: { limit: 100 }, // optional: limit results
-            },
-        })
-    }
-)
-
-
-
-// Watch for data changes and update categories
-watch(categoriesData, (newData) => {
-    if (newData?.data) {
-        categories.value = newData.data
-    }
-}, { immediate: true });
-
 
 
 const { data: activitiesData } = await useAsyncData<IActivitiesResponse>(
-    "activities", // ✅ cache key
+    "activities",
     async () => {
         return await $fetch(`${config.public.backendApi}/api/activities`, {
             headers: {
-                Authorization: `Bearer ${config.public.accessToken}`, // 🔥 REQUIRED
+                Authorization: `Bearer ${config.public.accessToken}`,
             },
             params: {
-                populate: "*", // populate all relations (e.g., articles)
-                // sort: ["name:asc"], // optional: sort activities alphabetically
-                // pagination: { limit: 100 }, // optional: limit results
+                "fields[0]": "documentId",
+                "fields[1]": "name",
+
+                "pagination[limit]": 100,
+
+                "populate[icon][fields][0]": "url",
             },
         })
     }
 )
 
-
-
-// Watch for data changes and update categories
-watch(activitiesData, (newData) => {
-    if (newData?.data) {
-        activities.value = newData.data
-    }
-}, { immediate: true });
+const activities = computed(() => activitiesData.value?.data ?? []);
 
 
 
