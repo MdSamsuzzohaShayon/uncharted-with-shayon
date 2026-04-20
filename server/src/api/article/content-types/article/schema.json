@@ -17,7 +17,11 @@
     },
     "description": {
       "type": "richtext",
-      "required": true
+      "required": false
+    },
+    "content": {
+      "type": "customField",
+      "customField": "plugin::editorjs.editorjs"
     },
     "slug": {
       "type": "uid",

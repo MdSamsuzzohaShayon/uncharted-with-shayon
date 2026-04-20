@@ -1,0 +1,43 @@
+{
+  "name": "editorjs",
+  "version": "0.0.1",
+  "strapi": {
+    "name": "editorjs",
+    "description": "Editor.js custom field plugin",
+    "kind": "plugin"
+  },
+  "scripts": {
+    "build": "npm run build:server && npm run build:admin",
+    "build:server": "tsc -p tsconfig.json",
+    "build:admin": "tsc -p tsconfig.admin.json",
+    "watch": "concurrently \"npm run build:server -- --watch\" \"npm run build:admin -- --watch\""
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@strapi/typescript-utils": "^5.0.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./strapi-admin": {
+      "types": "./dist/admin/index.d.ts",
+      "import": "./dist/admin/index.js",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./strapi-server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    }
+  }
+}

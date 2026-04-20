@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "outDir": "dist/server",
+        "module": "CommonJS",
+        "target": "ES2020",
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "allowJs": true,
+        "resolveJsonModule": true,
+        "noEmit": false,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true
+    },
+    "files": [
+        "server/index.ts",
+        "server/register.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "admin"
+    ]
+}

@@ -24,6 +24,10 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin =>
       },
     },
   },
+  editorjs: {
+    enabled: true,
+    resolve: './src/plugins/editorjs',
+  },
 });
 
 export default config;

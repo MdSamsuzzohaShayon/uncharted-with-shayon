@@ -14,9 +14,11 @@
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
-    "update": "npx npm-check-updates -u && npm install"
+    "update": "npx npm-check-updates -u && npm install",
+    "plugin": "rm -rf .strapi .cache && cd src/plugins/editorjs && rm -rf dist && npx tsc -p tsconfig.json && npx tsc -p tsconfig.admin.json"
   },
   "dependencies": {
+    "@editorjs/editorjs": "^2.31.6",
     "@strapi/plugin-cloud": "5.41.1",
     "@strapi/plugin-users-permissions": "5.41.1",
     "@strapi/provider-upload-aws-s3": "^5.41.1",

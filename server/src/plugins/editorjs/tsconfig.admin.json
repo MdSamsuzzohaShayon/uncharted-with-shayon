@@ -1,0 +1,27 @@
+{
+    "extends": "@strapi/typescript-utils/tsconfigs/admin",
+    "compilerOptions": {
+        "outDir": "dist/admin",
+        "rootDir": "admin/src",
+        "jsx": "react-jsx",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "target": "ES2020",
+        "skipLibCheck": true,
+        "strict": false,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "noEmit": false,
+        "declaration": true
+    },
+    "include": [
+        "admin/src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "server"
+    ]
+}
