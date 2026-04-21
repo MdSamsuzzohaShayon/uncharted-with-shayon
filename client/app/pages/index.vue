@@ -283,7 +283,7 @@ const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', '
 
 
 // Fetch Latest 3 Articles (with caching)
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
 // curl --location --globoff 'http://localhost:1337/api/articles?sort=published_date%3Adesc&fields=title%2Cslug&populate[featured_image][fields]=url'
 const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
@@ -365,17 +365,26 @@ const nextTwoArticles = computed(() => {
 
 
 const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
-    "categories",
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/categories`, {
-            headers: {
-                Authorization: `Bearer ${config.public.accessToken}`,
-            },
-            params: {
-                populate: "*",
-            },
-        })
-    }
+  "categories",
+  async () => {
+    return await $fetch(`${config.public.backendApi}/api/categories`, {
+      headers: {
+        Authorization: `Bearer ${config.public.accessToken}`,
+      },
+      params: {
+        // Select only required fields
+        "fields[0]": "name",
+        "fields[1]": "slug",
+        "fields[2]": "documentId",
+
+        // Populate icon
+        "populate[icon][fields][0]": "url",
+
+        // Populate featured image
+        "populate[featured_image][fields][0]": "url",
+      },
+    });
+  }
 );
 
 
