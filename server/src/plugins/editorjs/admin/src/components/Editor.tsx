@@ -35,6 +35,10 @@ import ChartBlock from '../custom-tools/ChartBlock';
 import BackgroundColorTune from '../custom-tools/BackgroundColorTune';
 import FontFamilyTune from '../custom-tools/FontFamilyTune';
 import IndentTune from '../custom-tools/IndentTune';
+import StrapiImageTool from '../custom-tools/StrapiImageTool';
+
+
+type TComponentClass = EditorConfig['tools'] extends undefined ? never : NonNullable<EditorConfig['tools']>[string] extends { class: infer C } ? C : never;
 
 // Types
 interface EditorInputProps {
@@ -92,17 +96,17 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
 
     console.log("-----------------------------------------------------------------------");
     console.log("-----------------------------------------------------------------------");
-    console.log({theme});
+    console.log({ theme });
     console.log("-----------------------------------------------------------------------");
     console.log("-----------------------------------------------------------------------");
-    
-    
+
+
     // Comprehensive theme configuration with proper contrast
     const themeConfig = useMemo<EditorTheme>(() => {
         const isDark = theme === 'dark';
-        
+
         console.log({ theme, isDark }); // Debug: should show correct theme
-        
+
         return {
             // Background colors
             bgPrimary: isDark ? '#1a1a1a' : '#ffffff',
@@ -110,23 +114,23 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
             bgTertiary: isDark ? '#3a3a3a' : '#eaeaef',
             bgHover: isDark ? '#4a4a4a' : '#e0e0e5',
             bgActive: isDark ? '#5a5a5a' : '#d0d0d5',
-            
+
             // Text colors with high contrast - FIXED
             textPrimary: isDark ? '#ffffff' : '#1a1a1a',      // White text on dark, dark text on light
             textSecondary: isDark ? '#e0e0e0' : '#4a4a4a',
             textMuted: isDark ? '#a0a0a0' : '#6a6a6a',
             textInverse: isDark ? '#1a1a1a' : '#ffffff',
-            
+
             // Border colors
             borderLight: isDark ? '#404040' : '#eaeaef',
             borderMedium: isDark ? '#505050' : '#d0d0d5',
             borderStrong: isDark ? '#606060' : '#a0a0a5',
-            
+
             // Accent colors
             accentPrimary: '#4945ff',
             accentHover: '#3b38d6',
             accentLight: isDark ? '#2a2866' : '#eeedff',
-            
+
             // Shadow properties
             shadowSm: isDark ? '0 1px 2px rgba(0, 0, 0, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.05)',
             shadowMd: isDark ? '0 4px 6px rgba(0, 0, 0, 0.3)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -197,8 +201,7 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
 
             tools: {
                 header: {
-                    // @ts-ignore
-                    class: Header,
+                    class: Header  as TComponentClass,
                     inlineToolbar: true,
                     config: {
                         placeholder: 'Enter a header',
@@ -208,8 +211,7 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     shortcut: 'CMD+SHIFT+H',
                 },
                 paragraph: {
-                    // @ts-ignore
-                    class: Paragraph,
+                    class: Paragraph as TComponentClass,
                     inlineToolbar: true,
                     config: {
                         placeholder: 'Write something amazing...',
@@ -217,24 +219,20 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     tunes: ['alignmentTune', 'fontSizeTune', 'textColorTune', 'backgroundColorTune', 'fontFamilyTune'],
                 },
                 list: {
-                    // @ts-ignore
                     class: List,
                     inlineToolbar: true,
                     shortcut: 'CMD+SHIFT+L',
                 },
                 nestedList: {
-                    // @ts-ignore
-                    class: NestedList,
+                    class: NestedList as TComponentClass,
                     inlineToolbar: true,
                 },
                 checklist: {
-                    // @ts-ignore
                     class: Checklist,
                     inlineToolbar: true,
                     shortcut: 'CMD+SHIFT+C',
                 },
                 quote: {
-                    // @ts-ignore
                     class: Quote,
                     inlineToolbar: true,
                     config: {
@@ -245,12 +243,10 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     tunes: ['alignmentTune'],
                 },
                 delimiter: {
-                    // @ts-ignore
                     class: Delimiter,
                     shortcut: 'CMD+SHIFT+D',
                 },
                 warning: {
-                    // @ts-ignore
                     class: Warning,
                     inlineToolbar: true,
                     config: {
@@ -259,94 +255,21 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     },
                     shortcut: 'CMD+SHIFT+W',
                 },
+                // In your tools config inside useEffect:
                 image: {
-                    // @ts-ignore
-                    class: ImageTool,
+                    class: StrapiImageTool,
                     config: {
-                        uploader: {
-                            async uploadByFile(file: File) {
-                                const formData = new FormData();
-                                formData.append('files', file);
-
-                                const token = localStorage.getItem('jwtToken') || '';
-
-                                const response = await fetch('/api/upload', {
-                                    method: 'POST',
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
-                                    },
-                                    body: formData,
-                                });
-
-                                const result = await response.json();
-
-                                if (result && result[0]) {
-                                    return {
-                                        success: 1,
-                                        file: {
-                                            url: result[0].url,
-                                            name: result[0].name,
-                                            size: result[0].size,
-                                        },
-                                    };
-                                }
-
-                                throw new Error('Upload failed');
-                            },
-                            async uploadByUrl(url: string) {
-                                const token = localStorage.getItem('jwtToken') || '';
-
-                                const response = await fetch('/api/upload/url', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${token}`,
-                                    },
-                                    body: JSON.stringify({ url }),
-                                });
-
-                                const result = await response.json();
-
-                                return {
-                                    success: 1,
-                                    file: {
-                                        url: result.url,
-                                    },
-                                };
-                            },
-                        },
-                        actions: [
-                            {
-                                name: 'openMediaLibrary',
-                                icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" fill="currentColor"/></svg>',
-                                async action() {
-                                    const media = await openMediaLibrary();
-                                    if (media && media.url) {
-                                        return {
-                                            success: 1,
-                                            file: {
-                                                url: media.url,
-                                                name: media.name,
-                                                size: media.size,
-                                            },
-                                        };
-                                    }
-                                    return null;
-                                },
-                            },
-                        ],
+                        mediaLibraryOpener: openMediaLibrary,
                     },
                     tunes: ['alignmentTune'],
                 },
                 linkTool: {
-                    // @ts-ignore
                     class: LinkTool,
                     config: {
                         endpoint: '/api/link/fetch',
                     },
                 },
                 embed: {
-                    // @ts-ignore
                     class: Embed,
                     config: {
                         services: {
@@ -362,7 +285,6 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     },
                 },
                 attaches: {
-                    // @ts-ignore
                     class: AttachesTool,
                     config: {
                         endpoint: '/api/upload',
@@ -373,8 +295,7 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     },
                 },
                 table: {
-                    // @ts-ignore
-                    class: Table,
+                    class: Table as TComponentClass,
                     inlineToolbar: true,
                     config: {
                         rows: 2,
@@ -384,7 +305,6 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     },
                 },
                 code: {
-                    // @ts-ignore
                     class: CodeTool,
                     config: {
                         placeholder: 'Enter code here...',
@@ -392,41 +312,30 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
                     shortcut: 'CMD+SHIFT+K',
                 },
                 raw: {
-                    // @ts-ignore
                     class: RawTool,
                 },
                 chart: {
-                    // @ts-ignore
-                    class: ChartBlock,
+                    class: ChartBlock as TComponentClass,
                     inlineToolbar: true,
                 },
                 marker: {
-                    // @ts-ignore
                     class: Marker,
                     shortcut: 'CMD+SHIFT+M',
                 },
                 inlineCode: {
-                    // @ts-ignore
                     class: InlineCode,
                     shortcut: 'CMD+SHIFT+I',
                 },
                 underline: {
-                    // @ts-ignore
                     class: Underline,
                     shortcut: 'CMD+U',
                 },
-                // @ts-ignore
-                alignmentTune: AlignmentTune,
-                // @ts-ignore
-                fontSizeTune: FontSizeTune,
-                // @ts-ignore
-                textColorTune: TextColorTune,
-                // @ts-ignore
-                backgroundColorTune: BackgroundColorTune,
-                // @ts-ignore
-                fontFamilyTune: FontFamilyTune,
-                // @ts-ignore
-                indentTune: IndentTune,
+                alignmentTune: AlignmentTune as TComponentClass,
+                fontSizeTune: FontSizeTune as TComponentClass,
+                textColorTune: TextColorTune as TComponentClass,
+                backgroundColorTune: BackgroundColorTune as TComponentClass,
+                fontFamilyTune: FontFamilyTune as TComponentClass,
+                indentTune: IndentTune as TComponentClass,
             },
 
             inlineToolbar: ['bold', 'italic', 'underline', 'marker', 'inlineCode', 'link'],
