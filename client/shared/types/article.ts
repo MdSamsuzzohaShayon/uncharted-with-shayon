@@ -35,7 +35,7 @@ export interface IArticle extends IDocument {
     meta_description: string | null;
     canonical_url: string | null;
     views: number;
-    description: string;
+    content: string;
     og_image?: string;
     featured_image: IImage | null;
     gallery: ReadonlyArray<IImage>;

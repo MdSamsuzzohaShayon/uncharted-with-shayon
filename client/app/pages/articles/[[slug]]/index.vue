@@ -1,3 +1,0 @@
-<template>
-    <ArticleSingleContainer />
-</template>

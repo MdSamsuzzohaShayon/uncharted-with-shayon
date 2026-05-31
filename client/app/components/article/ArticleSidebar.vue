@@ -16,7 +16,7 @@
         </div>
 
         <!-- YouTube Video -->
-        <div v-if="article.youtube_url" class="bg-white rounded-2xl p-6 border border-[#e5e7eb] shadow-sm">
+        <div v-if="article?.youtube_url" class="bg-white rounded-2xl p-6 border border-[#e5e7eb] shadow-sm">
             <h3 class="font-display font-bold text-[#1a1a1a] text-lg mb-4">Watch Video</h3>
             <div class="relative rounded-xl overflow-hidden cursor-pointer group" @click="emit('video-click')">
                 <img :src="`https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`"

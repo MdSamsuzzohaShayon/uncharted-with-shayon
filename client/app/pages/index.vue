@@ -46,14 +46,14 @@
                                 </p>
                                 <div
                                     class="anim-hero-cta flex flex-col sm:flex-row gap-3 mt-8 justify-center lg:justify-start">
-                                    <a href="/stories"
+                                    <NuxtLink href="/articles"
                                         class="px-7 py-3.5 bg-[#7ec8e3] hover:bg-[#5bb8d4] text-[#1a1a1a] font-semibold rounded-full text-sm tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-[#7ec8e3]/30 hover:-translate-y-0.5 active:scale-95 text-center">
                                         Start Exploring →
-                                    </a>
-                                    <button
+                                    </NuxtLink>
+                                    <NuxtLink href="/gallery"
                                         class="px-7 py-3.5 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold rounded-full text-sm tracking-wide border border-white/20 transition-all duration-300 hover:-translate-y-0.5 active:scale-95">
-                                        Watch Stories
-                                    </button>
+                                        Gallery
+                                    </NuxtLink>
                                 </div>
                             </div>
 
@@ -154,7 +154,7 @@
                         </h3>
 
                         <p class="text-[#555555] text-sm leading-relaxed line-clamp-2">
-                            {{ firstArticle.description }}
+                            {{ firstArticle.content }}
                         </p>
                     </div>
                 </NuxtLink>

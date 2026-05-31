@@ -179,6 +179,39 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
             container.innerHTML = '';
         }
 
+        // Parse data safely - handle both string and object cases
+        let parsedData;
+        try {
+            if (value) {
+                // If value is already an object, use it directly
+                if (typeof value === 'object') {
+                    parsedData = value;
+                } else if (typeof value === 'string') {
+                    // Try to parse if it's a string
+                    parsedData = JSON.parse(value);
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to parse editor data:', error);
+            // Use default data if parsing fails
+            parsedData = null;
+        }
+
+
+        // Use parsed data or default
+        const editorData = parsedData || {
+            time: Date.now(),
+            blocks: [
+                {
+                    type: 'paragraph',
+                    data: {
+                        text: 'Start writing your amazing content here...'
+                    }
+                }
+            ],
+            version: '2.30.8'
+        };
+
         const editorConfig: EditorConfig = {
             holder: editorContainerId,
             readOnly: disabled,
@@ -186,22 +219,11 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
             defaultBlock: 'paragraph',
             placeholder: 'Type / to see all available tools...',
 
-            data: value ? JSON.parse(value) : {
-                time: Date.now(),
-                blocks: [
-                    {
-                        type: 'paragraph',
-                        data: {
-                            text: 'Start writing your amazing content here...'
-                        }
-                    }
-                ],
-                version: '2.30.8'
-            },
+            data: editorData,
 
             tools: {
                 header: {
-                    class: Header  as TComponentClass,
+                    class: Header as TComponentClass,
                     inlineToolbar: true,
                     config: {
                         placeholder: 'Enter a header',
@@ -350,7 +372,19 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
             onReady: () => {
                 console.log('Editor.js is ready!');
                 isInitializedRef.current = true;
+
+                // Apply theme immediately
                 applyCustomTheme(themeConfig);
+
+                // Apply theme again after a short delay to catch any dynamically added elements
+                setTimeout(() => {
+                    applyCustomTheme(themeConfig);
+                }, 100);
+
+                // Apply theme one more time after toolbar is likely rendered
+                setTimeout(() => {
+                    applyCustomTheme(themeConfig);
+                }, 500);
             },
         };
 
@@ -377,7 +411,11 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
         };
     }, [editorContainerId, disabled]);
 
+
+
     // Apply comprehensive custom theme
+    // Update the applyCustomTheme function to be more aggressive with specificity
+
     const applyCustomTheme = useCallback((config: EditorTheme) => {
         const styleId = `editorjs-custom-theme-${editorContainerId}`;
         const existingStyle = document.getElementById(styleId);
@@ -388,604 +426,360 @@ const EditorInput = forwardRef<any, EditorInputProps>(({
         const style = document.createElement('style');
         style.id = styleId;
         style.textContent = `
-            /* ============ BASE CONTAINER ============ */
-            #${editorContainerId} {
-                background-color: ${config.bgPrimary} !important;
-                color: ${config.textPrimary} !important;
-                min-height: 400px;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                line-height: 1.6;
-            }
-
-            /* ============ BLOCKS ============ */
-            #${editorContainerId} .ce-block {
-                margin: 0.5em 0;
-            }
-
-            #${editorContainerId} .ce-block:first-of-type {
-                margin-top: 0;
-            }
-
-            #${editorContainerId} .ce-block__content {
-                background: transparent;
-                border-radius: 6px;
-                transition: background-color 0.2s ease;
-                max-width: 100%;
-                padding: 0 8px;
-            }
-
-            #${editorContainerId} .ce-block--focused .ce-block__content {
-                background: ${config.bgSecondary};
-            }
-
-            #${editorContainerId} .ce-block--selected .ce-block__content {
-                background: ${config.bgTertiary};
-            }
-
-            /* ============ PARAGRAPH ============ */
-            #${editorContainerId} .ce-paragraph {
-                line-height: 1.6;
-                font-size: 16px;
-                color: ${config.textPrimary} !important;
-            }
-
-            #${editorContainerId} .ce-paragraph[data-placeholder]:empty::before {
-                color: ${config.textMuted};
-            }
-
-            /* ============ HEADERS ============ */
-            #${editorContainerId} h1.ce-header,
-            #${editorContainerId} h2.ce-header,
-            #${editorContainerId} h3.ce-header,
-            #${editorContainerId} h4.ce-header {
-                color: ${config.textPrimary} !important;
-            }
-
-            #${editorContainerId} h1.ce-header {
-                font-size: 2.5em;
-                font-weight: 700;
-                margin: 0.5em 0;
-                line-height: 1.3;
-            }
-
-            #${editorContainerId} h2.ce-header {
-                font-size: 2em;
-                font-weight: 600;
-                margin: 0.5em 0;
-                line-height: 1.3;
-            }
-
-            #${editorContainerId} h3.ce-header {
-                font-size: 1.5em;
-                font-weight: 600;
-                margin: 0.5em 0;
-                line-height: 1.3;
-            }
-
-            #${editorContainerId} h4.ce-header {
-                font-size: 1.25em;
-                font-weight: 600;
-                margin: 0.5em 0;
-                line-height: 1.3;
-            }
-
-            /* ============ TOOLBAR ============ */
-            #${editorContainerId} .ce-toolbar__plus,
-            #${editorContainerId} .ce-toolbar__settings-btn {
-                background-color: ${config.bgSecondary};
-                color: ${config.textPrimary};
-                transition: all 0.2s ease;
-                border-radius: 6px;
-                border: 1px solid ${config.borderLight};
-            }
-
-            #${editorContainerId} .ce-toolbar__plus:hover,
-            #${editorContainerId} .ce-toolbar__settings-btn:hover {
-                background-color: ${config.bgHover};
-                border-color: ${config.borderMedium};
-            }
-
-            #${editorContainerId} .ce-toolbar__plus svg,
-            #${editorContainerId} .ce-toolbar__settings-btn svg {
-                fill: ${config.textPrimary};
-            }
-
-            /* ============ POPOVER ============ */
-            #${editorContainerId} .ce-popover {
-                background: ${config.bgSecondary};
-                border: 1px solid ${config.borderLight};
-                color: ${config.textPrimary};
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            }
-
-            #${editorContainerId} .ce-popover__item-icon {
-                background: ${config.bgTertiary};
-                color: ${config.textPrimary};
-                border-radius: 4px;
-            }
-
-            #${editorContainerId} .ce-popover__item-label {
-                color: ${config.textPrimary};
-            }
-
-            #${editorContainerId} .ce-popover__item:hover {
-                background-color: ${config.bgHover};
-            }
-
-            #${editorContainerId} .ce-popover__item--active {
-                background-color: ${config.accentLight};
-            }
-
-            /* ============ INLINE TOOLBAR ============ */
-            #${editorContainerId} .ce-inline-toolbar {
-                background: ${config.bgSecondary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                padding: 4px;
-            }
-
-            #${editorContainerId} .ce-inline-tool {
-                color: ${config.textPrimary};
-                border-radius: 4px;
-                transition: all 0.2s ease;
-            }
-
-            #${editorContainerId} .ce-inline-tool:hover {
-                background-color: ${config.bgHover};
-            }
-
-            #${editorContainerId} .ce-inline-tool--active {
-                color: ${config.accentPrimary};
-                background-color: ${config.accentLight};
-            }
-
-            #${editorContainerId} .ce-inline-tool svg {
-                fill: ${config.textPrimary};
-            }
-
-            /* ============ CONVERSION TOOLBAR ============ */
-            #${editorContainerId} .ce-conversion-toolbar {
-                background: ${config.bgSecondary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 8px;
-                padding: 4px;
-            }
-
-            #${editorContainerId} .ce-conversion-tool {
-                color: ${config.textPrimary};
-                border-radius: 4px;
-            }
-
-            #${editorContainerId} .ce-conversion-tool:hover {
-                background-color: ${config.bgHover};
-            }
-
-            #${editorContainerId} .ce-conversion-tool--focused {
-                background-color: ${config.accentLight};
-            }
-
-            /* ============ TABLE ============ */
-            #${editorContainerId} .tc-wrap {
-                --color-background: ${config.bgPrimary};
-                --color-border: ${config.borderLight};
-                --color-text-primary: ${config.textPrimary};
-                --color-text-secondary: ${config.textSecondary};
-                --color-toolbar-bg: ${config.bgSecondary};
-                --color-toolbar-button: ${config.textPrimary};
-                --color-toolbar-button-hover: ${config.bgHover};
-            }
-
-            #${editorContainerId} .tc-toolbar {
-                background: ${config.bgSecondary};
-                border-color: ${config.borderLight};
-            }
-
-            #${editorContainerId} .tc-cell {
-                border-color: ${config.borderLight};
-                color: ${config.textPrimary};
-            }
-
-            #${editorContainerId} .tc-cell--selected {
-                background: ${config.accentLight};
-            }
-
-            /* ============ IMAGE ============ */
-            #${editorContainerId} .image-tool {
-                --bg-color: ${config.bgSecondary};
-                --front-color: ${config.textPrimary};
-                --border-color: ${config.borderLight};
-            }
-
-            #${editorContainerId} .image-tool__image {
-                border-radius: 6px;
-            }
-
-            #${editorContainerId} .image-tool__caption {
-                color: ${config.textSecondary};
-                border-color: ${config.borderLight};
-            }
-
-            #${editorContainerId} .image-tool__caption:focus {
-                border-color: ${config.accentPrimary};
-            }
-
-            /* ============ CODE ============ */
-            #${editorContainerId} .ce-code__textarea {
-                background: ${config.bgSecondary};
-                color: ${config.textPrimary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 6px;
-                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                font-size: 14px;
-                line-height: 1.5;
-                padding: 12px;
-            }
-
-            #${editorContainerId} .ce-code__textarea:focus {
-                border-color: ${config.accentPrimary};
-                outline: none;
-            }
-
-            /* ============ QUOTE ============ */
-            #${editorContainerId} .cdx-quote {
-                border-left: 4px solid ${config.accentPrimary};
-                padding-left: 20px;
-                margin: 16px 0;
-            }
-
-            #${editorContainerId} .cdx-quote__text {
-                color: ${config.textPrimary};
-                font-size: 1.1em;
-                font-style: italic;
-            }
-
-            #${editorContainerId} .cdx-quote__caption {
-                color: ${config.textSecondary};
-            }
-
-            /* ============ WARNING ============ */
-            #${editorContainerId} .cdx-warning {
-                background: ${theme === 'dark' ? '#3a2a1a' : '#fff3cd'};
-                border: 1px solid ${theme === 'dark' ? '#856404' : '#ffeaa7'};
-                border-radius: 8px;
-                padding: 16px;
-                margin: 16px 0;
-            }
-
-            #${editorContainerId} .cdx-warning__title {
-                color: ${theme === 'dark' ? '#ffc107' : '#856404'};
-                font-weight: 600;
-            }
-
-            #${editorContainerId} .cdx-warning__message {
-                color: ${theme === 'dark' ? '#ffeaa7' : '#856404'};
-            }
-
-            /* ============ CHECKLIST ============ */
-            #${editorContainerId} .cdx-checklist__item {
-                color: ${config.textPrimary};
-            }
-
-            #${editorContainerId} .cdx-checklist__item-checkbox {
-                border: 2px solid ${config.borderMedium};
-                background: ${config.bgPrimary};
-                border-radius: 4px;
-            }
-
-            #${editorContainerId} .cdx-checklist__item-checkbox-check {
-                background: ${config.accentPrimary};
-                border-radius: 2px;
-            }
-
-            #${editorContainerId} .cdx-checklist__item--checked .cdx-checklist__item-text {
-                color: ${config.textMuted};
-                text-decoration: line-through;
-            }
-
-            /* ============ LINK ============ */
-            #${editorContainerId} .cdx-link {
-                background: ${config.bgSecondary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 6px;
-                padding: 8px 12px;
-            }
-
-            #${editorContainerId} .cdx-link__title {
-                color: ${config.textPrimary};
-            }
-
-            #${editorContainerId} .cdx-link__description {
-                color: ${config.textSecondary};
-            }
-
-            #${editorContainerId} .cdx-link__anchor {
-                color: ${config.accentPrimary};
-            }
-
-            /* ============ EMBED ============ */
-            #${editorContainerId} .embed-tool {
-                background: ${config.bgSecondary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 8px;
-            }
-
-            #${editorContainerId} .embed-tool__input {
-                background: ${config.bgPrimary};
-                color: ${config.textPrimary};
-                border: 1px solid ${config.borderLight};
-                border-radius: 6px;
-                padding: 8px 12px;
-            }
-
-            #${editorContainerId} .embed-tool__input:focus {
-                border-color: ${config.accentPrimary};
-                outline: none;
-            }
-
-            /* ============ MARKER (HIGHLIGHT) ============ */
-            #${editorContainerId} .cdx-marker {
-                background: ${theme === 'dark' ? 'rgba(255, 235, 111, 0.3)' : 'rgba(245, 235, 111, 0.4)'};
-                color: ${config.textPrimary};
-                padding: 2px 4px;
-                border-radius: 3px;
-            }
-
-            /* ============ INLINE CODE ============ */
-            #${editorContainerId} .inline-code {
-                background: ${config.bgTertiary};
-                color: ${config.textPrimary};
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                font-size: 0.9em;
-                border: 1px solid ${config.borderLight};
-            }
-
-            /* ============ DELIMITER ============ */
-            #${editorContainerId} .ce-delimiter {
-                line-height: 1.6em;
-                width: 100%;
-                text-align: center;
-            }
-
-            #${editorContainerId} .ce-delimiter:before {
-                display: inline-block;
-                content: "***";
-                font-size: 30px;
-                line-height: 65px;
-                height: 30px;
-                letter-spacing: 0.2em;
-                color: ${config.textMuted};
-            }
-
-            /* ============ SCROLLBAR ============ */
-            #${editorContainerId} ::-webkit-scrollbar {
-                width: 8px;
-                height: 8px;
-            }
-
-            #${editorContainerId} ::-webkit-scrollbar-track {
-                background: ${config.bgPrimary};
-            }
-
-            #${editorContainerId} ::-webkit-scrollbar-thumb {
-                background: ${config.borderMedium};
-                border-radius: 4px;
-            }
-
-            #${editorContainerId} ::-webkit-scrollbar-thumb:hover {
-                background: ${config.borderStrong};
-            }
-
-            /* ============ SELECTION ============ */
-            #${editorContainerId} ::selection {
-                background: ${config.accentLight};
-                color: ${config.textPrimary};
-            }
-
-            #${editorContainerId} ::-moz-selection {
-                background: ${config.accentLight};
-                color: ${config.textPrimary};
-            }
-
-            /* ============ RESPONSIVE DESIGN ============ */
-            
-            /* Tablet (768px - 1024px) */
-            @media (max-width: 1024px) and (min-width: 769px) {
-                #${editorContainerId} {
-                    padding: 20px;
-                    min-height: 400px;
-                }
-
-                #${editorContainerId} .ce-block__content {
-                    padding: 0 12px;
-                }
-
-                #${editorContainerId} h1.ce-header {
-                    font-size: 2.2em;
-                }
-
-                #${editorContainerId} h2.ce-header {
-                    font-size: 1.8em;
-                }
-
-                #${editorContainerId} h3.ce-header {
-                    font-size: 1.4em;
-                }
-            }
-
-            /* Mobile (320px - 768px) */
-            @media (max-width: 768px) {
-                #${editorContainerId} {
-                    padding: 16px;
-                    min-height: 350px;
-                }
-
-                #${editorContainerId} .ce-toolbar__actions {
-                    right: 5px;
-                }
-
-                #${editorContainerId} .ce-toolbar__plus,
-                #${editorContainerId} .ce-toolbar__settings-btn {
-                    width: 34px;
-                    height: 34px;
-                }
-
-                #${editorContainerId} .ce-block__content {
-                    padding: 0 8px;
-                }
-
-                #${editorContainerId} h1.ce-header {
-                    font-size: 1.8em;
-                }
-
-                #${editorContainerId} h2.ce-header {
-                    font-size: 1.5em;
-                }
-
-                #${editorContainerId} h3.ce-header {
-                    font-size: 1.25em;
-                }
-
-                #${editorContainerId} .ce-paragraph {
-                    font-size: 15px;
-                }
-
-                #${editorContainerId} .ce-popover {
-                    max-width: 280px;
-                }
-
-                #${editorContainerId} .ce-inline-toolbar {
-                    flex-wrap: wrap;
-                    max-width: 280px;
-                }
-
-                #${editorContainerId} .image-tool__image {
-                    max-height: 300px;
-                }
-
-                #${editorContainerId} .tc-toolbar {
-                    flex-wrap: wrap;
-                }
-            }
-
-            /* Small Mobile (< 480px) */
-            @media (max-width: 480px) {
-                #${editorContainerId} {
-                    padding: 12px;
-                    min-height: 300px;
-                }
-
-                #${editorContainerId} .ce-toolbar__plus,
-                #${editorContainerId} .ce-toolbar__settings-btn {
-                    width: 30px;
-                    height: 30px;
-                }
-
-                #${editorContainerId} h1.ce-header {
-                    font-size: 1.6em;
-                }
-
-                #${editorContainerId} h2.ce-header {
-                    font-size: 1.35em;
-                }
-
-                #${editorContainerId} h3.ce-header {
-                    font-size: 1.15em;
-                }
-
-                #${editorContainerId} .ce-paragraph {
-                    font-size: 14px;
-                }
-
-                #${editorContainerId} .cdx-quote {
-                    padding-left: 12px;
-                }
-
-                #${editorContainerId} .ce-code__textarea {
-                    font-size: 13px;
-                    padding: 8px;
-                }
-
-                #${editorContainerId} .tc-cell {
-                    padding: 6px;
-                    font-size: 13px;
-                }
-            }
-
-            /* Large Desktop (> 1440px) */
-            @media (min-width: 1441px) {
-                #${editorContainerId} {
-                    padding: 24px;
-                    min-height: 500px;
-                }
-
-                #${editorContainerId} .ce-block__content {
-                    max-width: 900px;
-                    margin: 0 auto;
-                }
-
-                #${editorContainerId} h1.ce-header {
-                    font-size: 3em;
-                }
-
-                #${editorContainerId} h2.ce-header {
-                    font-size: 2.25em;
-                }
-
-                #${editorContainerId} .ce-paragraph {
-                    font-size: 18px;
-                }
-            }
-
-            /* ============ SMOOTH TRANSITIONS ============ */
-            #${editorContainerId},
-            #${editorContainerId} .ce-toolbar__plus,
-            #${editorContainerId} .ce-toolbar__settings-btn,
-            #${editorContainerId} .ce-popover,
-            #${editorContainerId} .ce-inline-toolbar,
-            #${editorContainerId} .ce-conversion-toolbar,
-            #${editorContainerId} .ce-block__content,
-            #${editorContainerId} .tc-wrap,
-            #${editorContainerId} .cdx-warning,
-            #${editorContainerId} .image-tool,
-            #${editorContainerId} .ce-code__textarea {
-                transition: background-color 0.3s ease, 
-                            color 0.3s ease, 
-                            border-color 0.3s ease,
-                            box-shadow 0.3s ease;
-            }
-
-            #${editorContainerId} [contenteditable="true"] {
-                color: ${config.textPrimary} !important;
-                caret-color: ${config.accentPrimary} !important;
-            }
-
-            /* ============ FOCUS STATES ============ */
-            #${editorContainerId} [contenteditable="true"]:focus {
-                outline: none;
-            }
-
-            #${editorContainerId} .ce-block:focus-within .ce-block__content {
-                box-shadow: inset 0 0 0 1px ${config.accentLight};
-            }
-
-            /* ============ PLACEHOLDER ============ */
-            #${editorContainerId} [data-placeholder]:empty::before {
-                color: ${config.textMuted};
-                font-style: italic;
-                opacity: 0.7;
-            }
-        `;
+        /* ============ BASE CONTAINER ============ */
+        #${editorContainerId} {
+            background-color: ${config.bgPrimary} !important;
+            color: ${config.textPrimary} !important;
+            min-height: 400px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* ============ TOOLBAR - FIXED STYLES ============ */
+        /* Main toolbar container */
+        #${editorContainerId} .ce-toolbar {
+            z-index: 2;
+        }
+
+        /* Plus and Settings buttons */
+        #${editorContainerId} .ce-toolbar__plus,
+        #${editorContainerId} .ce-toolbar__settings-btn {
+            background-color: ${config.bgSecondary} !important;
+            color: ${config.textPrimary} !important;
+            border: 1px solid ${config.borderLight} !important;
+            border-radius: 6px !important;
+            width: 34px !important;
+            height: 34px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+        }
+
+        #${editorContainerId} .ce-toolbar__plus:hover,
+        #${editorContainerId} .ce-toolbar__settings-btn:hover {
+            background-color: ${config.bgHover} !important;
+            border-color: ${config.accentPrimary} !important;
+        }
+
+        /* SVG icons in toolbar buttons - THIS IS THE KEY FIX */
+        #${editorContainerId} .ce-toolbar__plus svg,
+        #${editorContainerId} .ce-toolbar__settings-btn svg,
+        #${editorContainerId} .ce-toolbar__actions svg,
+        #${editorContainerId} .ce-toolbar svg {
+            fill: ${config.textPrimary} !important;
+            color: ${config.textPrimary} !important;
+            stroke: ${config.textPrimary} !important;
+        }
+
+        /* Toolbar actions container */
+        #${editorContainerId} .ce-toolbar__actions {
+            background-color: transparent !important;
+        }
+
+        /* ============ POPOVER (Tool Menu) ============ */
+        #${editorContainerId} .ce-popover {
+            background: ${config.bgSecondary} !important;
+            border: 1px solid ${config.borderLight} !important;
+            color: ${config.textPrimary} !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        #${editorContainerId} .ce-popover__container {
+            background: ${config.bgSecondary} !important;
+        }
+
+        #${editorContainerId} .ce-popover__items {
+            background: ${config.bgSecondary} !important;
+        }
+
+        #${editorContainerId} .ce-popover__item {
+            color: ${config.textPrimary} !important;
+            background: transparent !important;
+        }
+
+        #${editorContainerId} .ce-popover__item-icon {
+            background: ${config.bgTertiary} !important;
+            color: ${config.textPrimary} !important;
+            border-radius: 4px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #${editorContainerId} .ce-popover__item-icon svg {
+            fill: ${config.textPrimary} !important;
+            color: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} .ce-popover__item-label {
+            color: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} .ce-popover__item:hover {
+            background-color: ${config.bgHover} !important;
+        }
+
+        #${editorContainerId} .ce-popover__item--active {
+            background-color: ${config.accentLight} !important;
+        }
+
+        /* Popover search input */
+        #${editorContainerId} .ce-popover__search input {
+            background: ${config.bgPrimary} !important;
+            color: ${config.textPrimary} !important;
+            border: 1px solid ${config.borderLight} !important;
+        }
+
+        #${editorContainerId} .ce-popover__search input::placeholder {
+            color: ${config.textMuted} !important;
+        }
+
+        /* ============ INLINE TOOLBAR ============ */
+        #${editorContainerId} .ce-inline-toolbar {
+            background: ${config.bgSecondary} !important;
+            border: 1px solid ${config.borderLight} !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            padding: 4px !important;
+        }
+
+        #${editorContainerId} .ce-inline-toolbar__buttons {
+            display: flex !important;
+            gap: 2px !important;
+        }
+
+        #${editorContainerId} .ce-inline-tool {
+            color: ${config.textPrimary} !important;
+            background: transparent !important;
+            border-radius: 4px !important;
+            transition: all 0.2s ease !important;
+            width: 34px !important;
+            height: 34px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        #${editorContainerId} .ce-inline-tool svg {
+            fill: ${config.textPrimary} !important;
+            color: ${config.textPrimary} !important;
+            stroke: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} .ce-inline-tool:hover {
+            background-color: ${config.bgHover} !important;
+        }
+
+        #${editorContainerId} .ce-inline-tool--active {
+            color: ${config.accentPrimary} !important;
+            background-color: ${config.accentLight} !important;
+        }
+
+        #${editorContainerId} .ce-inline-tool--active svg {
+            fill: ${config.accentPrimary} !important;
+            color: ${config.accentPrimary} !important;
+        }
+
+        /* ============ CONVERSION TOOLBAR ============ */
+        #${editorContainerId} .ce-conversion-toolbar {
+            background: ${config.bgSecondary} !important;
+            border: 1px solid ${config.borderLight} !important;
+            border-radius: 8px !important;
+            padding: 4px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        #${editorContainerId} .ce-conversion-toolbar__buttons {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 2px !important;
+        }
+
+        #${editorContainerId} .ce-conversion-tool {
+            color: ${config.textPrimary} !important;
+            background: transparent !important;
+            border-radius: 4px !important;
+            padding: 6px 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        #${editorContainerId} .ce-conversion-tool svg {
+            fill: ${config.textPrimary} !important;
+            color: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} .ce-conversion-tool:hover {
+            background-color: ${config.bgHover} !important;
+        }
+
+        #${editorContainerId} .ce-conversion-tool--focused {
+            background-color: ${config.accentLight} !important;
+        }
+
+        #${editorContainerId} .ce-conversion-tool__icon {
+            background: ${config.bgTertiary} !important;
+            border-radius: 4px !important;
+            width: 32px !important;
+            height: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* ============ BLOCK TUNE BUTTON ============ */
+        #${editorContainerId} .ce-toolbar__settings-btn {
+            margin-left: 5px !important;
+        }
+
+        /* Tunes popover */
+        #${editorContainerId} .ce-popover--tunes .ce-popover__item {
+            padding: 8px 12px !important;
+        }
+
+        #${editorContainerId} .ce-popover--tunes .ce-popover__item-icon {
+            width: 28px !important;
+            height: 28px !important;
+        }
+
+        /* ============ REST OF YOUR EXISTING STYLES ============ */
+        /* ... (keep all your other block styles, they look fine) ... */
+
+        /* ============ BLOCKS ============ */
+        #${editorContainerId} .ce-block {
+            margin: 0.5em 0;
+        }
+
+        #${editorContainerId} .ce-block:first-of-type {
+            margin-top: 0;
+        }
+
+        #${editorContainerId} .ce-block__content {
+            background: transparent;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            max-width: 100%;
+            padding: 0 8px;
+        }
+
+        #${editorContainerId} .ce-block--focused .ce-block__content {
+            background: ${config.bgSecondary};
+        }
+
+        #${editorContainerId} .ce-block--selected .ce-block__content {
+            background: ${config.bgTertiary};
+        }
+
+        /* ============ PARAGRAPH ============ */
+        #${editorContainerId} .ce-paragraph {
+            line-height: 1.6;
+            font-size: 16px;
+            color: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} .ce-paragraph[data-placeholder]:empty::before {
+            color: ${config.textMuted};
+        }
+
+        /* ============ HEADERS ============ */
+        #${editorContainerId} h1.ce-header,
+        #${editorContainerId} h2.ce-header,
+        #${editorContainerId} h3.ce-header,
+        #${editorContainerId} h4.ce-header {
+            color: ${config.textPrimary} !important;
+        }
+
+        #${editorContainerId} h1.ce-header {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0.5em 0;
+            line-height: 1.3;
+        }
+
+        #${editorContainerId} h2.ce-header {
+            font-size: 2em;
+            font-weight: 600;
+            margin: 0.5em 0;
+            line-height: 1.3;
+        }
+
+        #${editorContainerId} h3.ce-header {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin: 0.5em 0;
+            line-height: 1.3;
+        }
+
+        #${editorContainerId} h4.ce-header {
+            font-size: 1.25em;
+            font-weight: 600;
+            margin: 0.5em 0;
+            line-height: 1.3;
+        }
+
+        /* ============ SELECTION ============ */
+        #${editorContainerId} ::selection {
+            background: ${config.accentLight};
+            color: ${config.textPrimary};
+        }
+
+        #${editorContainerId} ::-moz-selection {
+            background: ${config.accentLight};
+            color: ${config.textPrimary};
+        }
+
+        /* ============ SMOOTH TRANSITIONS ============ */
+        #${editorContainerId},
+        #${editorContainerId} .ce-toolbar__plus,
+        #${editorContainerId} .ce-toolbar__settings-btn,
+        #${editorContainerId} .ce-popover,
+        #${editorContainerId} .ce-inline-toolbar,
+        #${editorContainerId} .ce-conversion-toolbar,
+        #${editorContainerId} .ce-block__content {
+            transition: background-color 0.3s ease, 
+                        color 0.3s ease, 
+                        border-color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
+
+        #${editorContainerId} [contenteditable="true"] {
+            color: ${config.textPrimary} !important;
+            caret-color: ${config.accentPrimary} !important;
+        }
+
+        /* ============ PLACEHOLDER ============ */
+        #${editorContainerId} [data-placeholder]:empty::before {
+            color: ${config.textMuted} !important;
+            font-style: italic;
+            opacity: 0.7;
+        }
+    `;
 
         document.head.appendChild(style);
     }, [editorContainerId, theme]);
 
+
+    // Add this useEffect to handle theme changes
+    useEffect(() => {
+        if (editorInstance.current && isInitializedRef.current) {
+            applyCustomTheme(themeConfig);
+
+            // Re-apply after delays to catch dynamic elements
+            const timeout1 = setTimeout(() => applyCustomTheme(themeConfig), 100);
+            const timeout2 = setTimeout(() => applyCustomTheme(themeConfig), 500);
+
+            return () => {
+                clearTimeout(timeout1);
+                clearTimeout(timeout2);
+            };
+        }
+    }, [themeConfig, applyCustomTheme]);
     // Handle Strapi save event
     useEffect(() => {
         const handleStrapiSave = () => {

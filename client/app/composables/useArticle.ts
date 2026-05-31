@@ -110,7 +110,7 @@ export const useArticle = (initialSlug?: string): UseArticleReturn => {
                             'fields[9]': 'meta_description',
                             'fields[10]': 'canonical_url',
                             'fields[11]': 'views',
-                            'fields[12]': 'description',
+                            'fields[12]': 'content',
                             'populate[featured_image][fields][0]': 'url',
                             'populate[featured_image][fields][1]': 'name',
                             'populate[gallery][fields][0]': 'url',
@@ -126,6 +126,9 @@ export const useArticle = (initialSlug?: string): UseArticleReturn => {
                         }
                     }
                 )
+
+                console.log({response});
+                
 
                 if (!response?.data?.[0]) {
                     throw createError({

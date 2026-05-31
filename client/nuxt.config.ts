@@ -49,5 +49,46 @@ export default defineNuxtConfig({
         }
       ]
     }
+  },
+
+  // nuxt.config.ts
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'editorjs-core': ['@editorjs/editorjs'],
+            'editorjs-tools': [
+              '@editorjs/header',
+              '@editorjs/paragraph',
+              '@editorjs/list',
+              '@editorjs/quote',
+              '@editorjs/image',
+              '@editorjs/code',
+              '@editorjs/table',
+              '@editorjs/warning',
+              '@editorjs/checklist',
+              '@editorjs/delimiter',
+              '@editorjs/marker',
+              '@editorjs/inline-code',
+              '@editorjs/underline',
+              '@editorjs/embed',
+              '@editorjs/link',
+              '@editorjs/raw',
+              '@editorjs/attaches',
+              '@editorjs/nested-list'
+            ]
+          }
+        }
+      }
+    },
+    optimizeDeps: {
+      include: [
+        '@editorjs/editorjs',
+        '@editorjs/header',
+        '@editorjs/paragraph'
+        // Add frequently used tools
+      ]
+    }
   }
 })
