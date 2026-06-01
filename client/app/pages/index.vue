@@ -87,9 +87,9 @@
                             :aria-pressed="activeCategory === i" :aria-label="`Filter by ${act.name}`"
                             @click="activeCategory = i">
                             <span :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0',
-                                // act.bg
                             ]" aria-hidden="true">
-                                <NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" />
+                                <NuxtImg width="600" height="400" format="webp" quality="70" loading="lazy" placeholder
+                                    :src="act.icon.url || '/imgs/no-image.jpg'" :alt="act.name" class="w-full" />
                             </span>
                             {{ act.name }}
                         </button>
@@ -130,7 +130,7 @@
                     class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
 
                     <div class="relative h-72 md:h-80 overflow-hidden">
-                        <NuxtImg format="webp" loading="lazy" fetchpriority="low"
+                        <NuxtImg width="600" height="400" format="webp" quality="70" loading="lazy" placeholder
                             :src="firstArticle?.featured_image?.url || '/imgs/no-image.jpg'" :alt="firstArticle.title"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
@@ -165,8 +165,8 @@
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
 
                         <div class="relative h-44 overflow-hidden">
-                            <NuxtImg :src="article?.featured_image?.url || '/imgs/no-image.jpg'" format="webp"
-                                loading="lazy" fetchpriority="low" :alt="article.title"
+                            <NuxtImg :src="article?.featured_image?.url || '/imgs/no-image.jpg'" width="600"
+                                height="400" format="webp" quality="70" loading="lazy" placeholder :alt="article.title"
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
@@ -227,7 +227,7 @@
                     :class="['group relative rounded-2xl overflow-hidden cursor-pointer', article.span]">
                     <NuxtImg :src="article.featured_image?.url" :alt="article.title"
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        format="webp" loading="lazy" fetchpriority="low" />
+                        width="600" height="400" format="webp" quality="70" loading="lazy" placeholder />
                     <figcaption class="absolute inset-0 flex items-end p-3">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             aria-hidden="true"></div>
@@ -286,113 +286,11 @@ const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', '
 const config = useRuntimeConfig();
 
 // curl --location --globoff 'http://localhost:1337/api/articles?sort=published_date%3Adesc&fields=title%2Cslug&populate[featured_image][fields]=url'
-const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
-    "latest-articles",
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/articles`, {
-            headers: {
-                Authorization: `Bearer ${config.public.accessToken}`,
-            },
-            params: {
-                sort: ["published_date:desc"],
-                "fields[0]": "title",
-                "fields[1]": "slug",
-                "fields[2]": "documentId",
-                "fields[3]": "meta_title",
-                // meta_title
-
-                "pagination[limit]": 5,
-
-                "populate[featured_image][fields][0]": "url",
-            },
-        })
-    }
-);
-
-
-
-
-const latestGrouped = computed<IArticleSpan[]>(() => {
-
-    const spans = ['col-span-1 row-span-2',
-        'col-span-2 row-span-1',
-        'col-span-1 row-span-1',
-        'col-span-1 row-span-1',
-        'col-span-2 row-span-1',]
-
-    return (latestArticles.value?.data ?? []).map((article: IArticle, i: number) => ({
-        ...article,
-        span: spans[i] || "",
-    }))
-})
-
-
-
-
-// Fetch Featured Articles (3 articles for home page)
-const { data: featuredArticles, error: featuredError, pending: featuredPending } = await useAsyncData<IFeaturedArticlesResponse>(
-    "featured-articles",
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/featured-posts`, {
-            headers: {
-                Authorization: `Bearer ${config.public.fullAccessToken}`,
-            },
-            params: {
-                "pagination[start]": 0,
-                "pagination[limit]": 3,
-                "fields[0]": "title",
-                "fields[1]": "slug",
-                "fields[2]": "documentId",
-                "populate[featured_image][fields][0]": "url",
-                "populate[categories][fields][0]": "name",
-                "populate[categories][fields][1]": "slug",
-            }
-        })
-    }
-);
-
-
-
-const firstArticle = computed(() => {
-    return featuredArticles.value?.data?.[0] ?? null;
-})
-
-const nextTwoArticles = computed(() => {
-    return featuredArticles.value?.data?.slice(1, 3) ?? [];
-});
-
-
-
-
-const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
-  "categories",
-  async () => {
-    return await $fetch(`${config.public.backendApi}/api/categories`, {
-      headers: {
-        Authorization: `Bearer ${config.public.accessToken}`,
-      },
-      params: {
-        // Select only required fields
-        "fields[0]": "name",
-        "fields[1]": "slug",
-        "fields[2]": "documentId",
-
-        // Populate icon
-        "populate[icon][fields][0]": "url",
-
-        // Populate featured image
-        "populate[featured_image][fields][0]": "url",
-      },
-    });
-  }
-);
 
 
 
 
 
-// Watch for data changes and update categories
-const categories = computed(() => categoriesData.value?.data ?? []);
 
 
 
@@ -419,26 +317,179 @@ function crossFadeBg(src: string | null) {
 
 
 
-const { data: activitiesData } = await useAsyncData<IActivitiesResponse>(
-    "activities",
-    async () => {
-        return await $fetch(`${config.public.backendApi}/api/activities`, {
-            headers: {
-                Authorization: `Bearer ${config.public.accessToken}`,
-            },
-            params: {
-                "fields[0]": "documentId",
-                "fields[1]": "name",
 
-                "pagination[limit]": 100,
+/**
+ * Fetching data perallally for performance
+ */
 
-                "populate[icon][fields][0]": "url",
-            },
-        })
-    }
-)
+const getCached = <T>(
+    key: string,
+    nuxtApp: any,
+    ctx: { cause: string }
+): T | undefined => {
+    const payload = nuxtApp.payload?.data?.[key]
+    const staticData = nuxtApp.static?.data?.[key]
 
-const activities = computed(() => activitiesData.value?.data ?? []);
+    return payload ?? staticData ?? undefined
+}
+const { data: latestArticles, error: latestArticlesError } =
+    await useAsyncData<ILatestArticleResponse>(
+        'latest-articles',
+        async (nuxtApp, { signal }) => {
+            const config = useRuntimeConfig()
+
+            return await $fetch(`${config.public.backendApi}/api/articles`, {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${config.public.accessToken}`
+                },
+                params: {
+                    sort: ['published_date:desc'],
+                    'fields[0]': 'title',
+                    'fields[1]': 'slug',
+                    'fields[2]': 'documentId',
+                    'pagination[limit]': 5,
+                    'populate[featured_image][fields][0]': 'url'
+                }
+            })
+        },
+        {
+            server: true,
+            lazy: false,
+            dedupe: 'defer',
+            getCachedData: (key, nuxtApp, ctx) =>
+                getCached<ILatestArticleResponse>(key, nuxtApp, ctx)
+        }
+    );
+
+
+const { data: featuredArticles, error: featuredError } =
+    await useAsyncData<IFeaturedArticlesResponse>(
+        'featured-articles',
+        async (nuxtApp, { signal }) => {
+            const config = useRuntimeConfig()
+
+            return await $fetch(`${config.public.backendApi}/api/featured-posts`, {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${config.public.fullAccessToken}`
+                },
+                params: {
+                    'pagination[start]': 0,
+                    'pagination[limit]': 3,
+                    'fields[0]': 'title',
+                    'fields[1]': 'slug',
+                    'fields[2]': 'documentId',
+                    'populate[featured_image][fields][0]': 'url',
+                    'populate[categories][fields][0]': 'name',
+                    'populate[categories][fields][1]': 'slug'
+                }
+            })
+        },
+        {
+            server: true,
+            lazy: false,
+            dedupe: 'defer',
+            getCachedData: (key, nuxtApp, ctx) =>
+                getCached<IFeaturedArticlesResponse>(key, nuxtApp, ctx)
+        }
+    );
+
+
+const { data: categoriesData, error: categoriesError } =
+    await useAsyncData<ICategoriesResponse>(
+        'categories',
+        async (nuxtApp, { signal }) => {
+            const config = useRuntimeConfig()
+
+            return await $fetch(`${config.public.backendApi}/api/categories`, {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${config.public.accessToken}`
+                },
+                params: {
+                    'fields[0]': 'name',
+                    'fields[1]': 'slug',
+                    'fields[2]': 'documentId',
+                    'populate[icon][fields][0]': 'url',
+                    'populate[featured_image][fields][0]': 'url'
+                }
+            })
+        },
+        {
+            server: true,
+            lazy: false,
+            dedupe: 'defer',
+            getCachedData: (key, nuxtApp, ctx) =>
+                getCached<ICategoriesResponse>(key, nuxtApp, ctx)
+        }
+    );
+
+const { data: activitiesData, error: activitiesError } =
+    await useAsyncData<IActivitiesResponse>(
+        'activities',
+        async (nuxtApp, { signal }) => {
+            const config = useRuntimeConfig()
+
+            return await $fetch(`${config.public.backendApi}/api/activities`, {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${config.public.accessToken}`
+                },
+                params: {
+                    'fields[0]': 'documentId',
+                    'fields[1]': 'name',
+                    'pagination[limit]': 100,
+                    'populate[icon][fields][0]': 'url'
+                }
+            })
+        },
+        {
+            server: true,
+            lazy: false,
+            dedupe: 'defer',
+            getCachedData: (key, nuxtApp, ctx) =>
+                getCached<IActivitiesResponse>(key, nuxtApp, ctx)
+        }
+    );
+
+
+
+/**
+ * Compute fetched data
+ */
+const activities = computed<IActivity[]>(() => activitiesData.value?.data ?? []);
+const firstArticle = computed(() => {
+    return featuredArticles.value?.data?.[0] ?? null;
+})
+
+const nextTwoArticles = computed(() => {
+    return featuredArticles.value?.data?.slice(1, 3) ?? [];
+});
+
+
+// Watch for data changes and update categories
+const categories = computed(() => categoriesData.value?.data ?? []);
+
+
+
+const latestGrouped = computed<IArticleSpan[]>(() => {
+    const spans = [
+        'col-span-1 row-span-2',
+        'col-span-2 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-2 row-span-1',
+    ]
+
+    const articles = latestArticles.value?.data ?? []
+
+    return articles.map((article: IArticle, i: number) => ({
+        ...article,
+        span: spans[i] ?? '',
+    }))
+})
+
 
 
 
