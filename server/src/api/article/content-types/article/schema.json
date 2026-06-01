@@ -15,13 +15,13 @@
       "type": "string",
       "required": true
     },
+    "content": {
+      "type": "customField",
+      "customField": "plugin::editorjs.editorjs"
+    },
     "slug": {
       "type": "uid",
       "targetField": "title",
-      "required": true
-    },
-    "description": {
-      "type": "text",
       "required": true
     },
     "youtube_url": {
@@ -64,24 +64,6 @@
     "map_lng": {
       "type": "decimal"
     },
-    "categories": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::category.category",
-      "mappedBy": "article"
-    },
-    "tags": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::tag.tag",
-      "inversedBy": "articles"
-    },
-    "location": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::location.location",
-      "inversedBy": "articles"
-    },
     "meta_title": {
       "type": "string",
       "required": true
@@ -107,6 +89,34 @@
       "type": "integer",
       "default": 0,
       "min": 0
+    },
+    "location": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::location.location",
+      "inversedBy": "articles"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::category.category",
+      "mappedBy": "article"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
+      "inversedBy": "articles"
+    },
+    "activities": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::activity.activity",
+      "mappedBy": "articles"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

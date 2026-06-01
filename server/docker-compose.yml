@@ -1,0 +1,16 @@
+services:
+  strapi_backend:
+    image: ghcr.io/mdsamsuzzohashayon/uncharted-strapi:latest
+
+    container_name: strapi_backend
+
+    restart: unless-stopped
+
+    ports:
+      - "1337:1337"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./public/uploads:/app/public/uploads

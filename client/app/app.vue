@@ -1,9 +1,12 @@
 <template>
   <div>
-    <p class="w-full p-2 bg-red-300 text-red-900">
-      Under development
-    </p>
-    <NuxtPage />
+
+    <NuxtLayout>
+      <p class="w-full p-2 bg-red-300 text-red-900">
+        Under development
+      </p>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
 

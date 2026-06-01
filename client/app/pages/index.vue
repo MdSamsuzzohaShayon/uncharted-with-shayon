@@ -46,14 +46,14 @@
                                 </p>
                                 <div
                                     class="anim-hero-cta flex flex-col sm:flex-row gap-3 mt-8 justify-center lg:justify-start">
-                                    <a href="/stories"
+                                    <NuxtLink href="/articles"
                                         class="px-7 py-3.5 bg-[#7ec8e3] hover:bg-[#5bb8d4] text-[#1a1a1a] font-semibold rounded-full text-sm tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-[#7ec8e3]/30 hover:-translate-y-0.5 active:scale-95 text-center">
                                         Start Exploring →
-                                    </a>
-                                    <button
+                                    </NuxtLink>
+                                    <NuxtLink href="/gallery"
                                         class="px-7 py-3.5 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold rounded-full text-sm tracking-wide border border-white/20 transition-all duration-300 hover:-translate-y-0.5 active:scale-95">
-                                        Watch Stories
-                                    </button>
+                                        Gallery
+                                    </NuxtLink>
                                 </div>
                             </div>
 
@@ -61,9 +61,8 @@
                             <div class="anim-cards-wrap relative w-full lg:w-7/12 h-[420px] md:h-[500px] flex items-center justify-end"
                                 aria-label="Featured travel destinations">
                                 <div class="flex gap-3 md:gap-4 items-end justify-center">
-
-                                    <FeatureArticle v-for="article, i in featureArticles"
-                                        v-bind:active-article-id="activeArticleId" v-bind:article="article"
+                                    <FeatureCategory v-for="cat, i in categories"
+                                        v-bind:active-category-id="activeCategoryId" v-bind:category="cat"
                                         v-on:set-hero-bg="setHeroBg" />
                                 </div>
                             </div>
@@ -81,16 +80,18 @@
                             class="text-[#555555] text-xs font-semibold tracking-widest uppercase whitespace-nowrap mr-2 hidden md:block"
                             aria-hidden="true">Explore</span>
                         <div class="w-px h-6 bg-[#e5e7eb] hidden md:block" aria-hidden="true"></div>
-                        <button v-for="(cat, i) in categories" :key="cat.label" :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
+                        <button v-for="(act, i) in activities" :key="act.id" :class="['flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 flex-shrink-0 active:scale-95',
                             activeCategory === i
                                 ? 'cat-btn-active bg-[#1a4a6b] text-white shadow-md shadow-[#1a4a6b]/20'
                                 : 'hover:bg-[#f9fafc] text-[#555555] hover:text-[#1a1a1a] hover:scale-105']"
-                            :aria-pressed="activeCategory === i" :aria-label="`Filter by ${cat.label}`"
+                            :aria-pressed="activeCategory === i" :aria-label="`Filter by ${act.name}`"
                             @click="activeCategory = i">
-                            <span
-                                :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0', cat.bg]"
-                                aria-hidden="true">{{ cat.icon }}</span>
-                            {{ cat.label }}
+                            <span :class="['w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0',
+                                // act.bg
+                            ]" aria-hidden="true">
+                                <NuxtImg :src="act.icon.url" format="webp" loading="lazy" fetchpriority="low" />
+                            </span>
+                            {{ act.name }}
                         </button>
                     </div>
                 </div>
@@ -125,7 +126,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.id)"
+                <NuxtLink v-if="firstArticle" v-bind:href="firstArticle?.slug || String(firstArticle.documentId)"
                     class="group md:col-span-2 relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer hover:-translate-y-1">
 
                     <div class="relative h-72 md:h-80 overflow-hidden">
@@ -134,9 +135,9 @@
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
 
-                        <span
+                        <span v-for="cat in firstArticle.categories"
                             class="absolute top-4 left-4 bg-[#7ec8e3] text-[#1a1a1a] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                            {{ firstArticle.category }}
+                            {{ cat.name }}
                         </span>
                     </div>
 
@@ -153,14 +154,14 @@
                         </h3>
 
                         <p class="text-[#555555] text-sm leading-relaxed line-clamp-2">
-                            {{ firstArticle.description }}
+                            {{ firstArticle.content }}
                         </p>
                     </div>
                 </NuxtLink>
 
                 <div class="flex flex-col gap-6">
-                    <NuxtLink v-for="article in nextTwoArticles" :key="article.id"
-                        v-bind:href="article?.slug || String(article.id)"
+                    <NuxtLink v-if="nextTwoArticles && nextTwoArticles.length > 0" v-for="article in nextTwoArticles"
+                        :key="article.id" v-bind:href="article?.slug || String(article.id)"
                         class="group relative rounded-2xl overflow-hidden bg-white border border-[#e5e7eb] shadow-sm hover:shadow-xl hover:shadow-black/8 transition-all duration-500 cursor-pointer flex flex-col hover:-translate-y-1">
 
                         <div class="relative h-44 overflow-hidden">
@@ -169,9 +170,10 @@
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
 
-                            <span
+
+                            <span v-for="cat in article.categories"
                                 class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                {{ article.category }}
+                                {{ cat.name }}
                             </span>
                         </div>
 
@@ -221,17 +223,17 @@
                 </h2>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-3 md:gap-4 h-[480px] md:h-[560px]">
-                <figure v-for="(photo, i) in galleryPhotos" :key="i"
-                    :class="['group relative rounded-2xl overflow-hidden cursor-pointer', photo.span]">
-                    <img :src="photo.src" :alt="photo.alt"
+                <figure v-for="(article, i) in latestGrouped" :key="i"
+                    :class="['group relative rounded-2xl overflow-hidden cursor-pointer', article.span]">
+                    <NuxtImg :src="article.featured_image?.url" :alt="article.title"
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy" />
+                        format="webp" loading="lazy" fetchpriority="low" />
                     <figcaption class="absolute inset-0 flex items-end p-3">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             aria-hidden="true"></div>
                         <p
                             class="relative text-white text-sm font-bold translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                            {{ photo.alt }}</p>
+                            {{ article.title }}</p>
                     </figcaption>
                 </figure>
             </div>
@@ -245,18 +247,8 @@
 
 
 <script setup lang="ts">
+import type { IActivitiesResponse, IActivity, IArticle, IArticleSpan, ICategoriesResponse, ICategory, ILatestArticleResponse, ILatestArticlesGrouped } from '~~/shared/types';
 
-
-// const { $gtm } = useNuxtApp()
-
-// const trackPurchase = () => {
-//     $gtm.push({
-//         event: 'purchase',
-//         transaction_id: 'ORDER_123',
-//         value: 99.99,
-//         currency: 'USD'
-//     })
-// }
 
 // ── SEO Meta ──────────────────────────────────
 useHead({
@@ -267,7 +259,7 @@ useHead({
         { property: 'og:title', content: 'Uncharted with Shayon — Travel & Adventure Blog' },
         { property: 'og:description', content: 'Unscripted journeys and stories from the road.' },
         { property: 'og:type', content: 'website' },
-        { property: 'og:image', content: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80' },
+        { property: 'og:image', content: 'https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp' },
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Uncharted with Shayon' },
         { name: 'twitter:description', content: 'Unscripted journeys, raw landscapes, travel stories.' },
@@ -276,31 +268,147 @@ useHead({
 })
 
 // ── Search ────────────────────────────────────
-const featureArticles = ref<IArticle[]>(articlesData);
-const defaultBg = ref<string>(articlesData[0]?.featured_image?.url || "");
+const defaultBg = ref<string>("https://pub-c5ea369ed0724b91bc453d6b131a6067.r2.dev/festival_7be1fef336.webp");
+const heroBg = ref(defaultBg.value);
+const bgFading = ref(false);
+const activeCategoryId = ref<null | number>(null);
+// ── Categories ────────────────────────────────
+const activeCategory = ref(0)
+
+// ── Posts ─────────────────────────────────────
+
+// ── Marquee ───────────────────────────────────
+const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
+
+
+
+// Fetch Latest 3 Articles (with caching)
+const config = useRuntimeConfig();
+
+// curl --location --globoff 'http://localhost:1337/api/articles?sort=published_date%3Adesc&fields=title%2Cslug&populate[featured_image][fields]=url'
+const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
+    "latest-articles",
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/articles`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`,
+            },
+            params: {
+                sort: ["published_date:desc"],
+                "fields[0]": "title",
+                "fields[1]": "slug",
+                "fields[2]": "documentId",
+                "fields[3]": "meta_title",
+                // meta_title
+
+                "pagination[limit]": 5,
+
+                "populate[featured_image][fields][0]": "url",
+            },
+        })
+    }
+);
+
+
+
+
+const latestGrouped = computed<IArticleSpan[]>(() => {
+
+    const spans = ['col-span-1 row-span-2',
+        'col-span-2 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-1 row-span-1',
+        'col-span-2 row-span-1',]
+
+    return (latestArticles.value?.data ?? []).map((article: IArticle, i: number) => ({
+        ...article,
+        span: spans[i] || "",
+    }))
+})
+
+
+
+
+// Fetch Featured Articles (3 articles for home page)
+const { data: featuredArticles, error: featuredError, pending: featuredPending } = await useAsyncData<IFeaturedArticlesResponse>(
+    "featured-articles",
+    async () => {
+        return await $fetch(`${config.public.backendApi}/api/featured-posts`, {
+            headers: {
+                Authorization: `Bearer ${config.public.fullAccessToken}`,
+            },
+            params: {
+                "pagination[start]": 0,
+                "pagination[limit]": 3,
+                "fields[0]": "title",
+                "fields[1]": "slug",
+                "fields[2]": "documentId",
+                "populate[featured_image][fields][0]": "url",
+                "populate[categories][fields][0]": "name",
+                "populate[categories][fields][1]": "slug",
+            }
+        })
+    }
+);
+
+
+
+const firstArticle = computed(() => {
+    return featuredArticles.value?.data?.[0] ?? null;
+})
+
+const nextTwoArticles = computed(() => {
+    return featuredArticles.value?.data?.slice(1, 3) ?? [];
+});
+
+
+
+
+const { data: categoriesData } = await useAsyncData<ICategoriesResponse>(
+  "categories",
+  async () => {
+    return await $fetch(`${config.public.backendApi}/api/categories`, {
+      headers: {
+        Authorization: `Bearer ${config.public.accessToken}`,
+      },
+      params: {
+        // Select only required fields
+        "fields[0]": "name",
+        "fields[1]": "slug",
+        "fields[2]": "documentId",
+
+        // Populate icon
+        "populate[icon][fields][0]": "url",
+
+        // Populate featured image
+        "populate[featured_image][fields][0]": "url",
+      },
+    });
+  }
+);
 
 
 
 
 
+// Watch for data changes and update categories
+const categories = computed(() => categoriesData.value?.data ?? []);
 
 
 
-const heroBg = ref(defaultBg.value)
-const bgFading = ref(false)
-const activeArticleId = ref<null | number>(articlesData[0]?.id || null);
 
-function setHeroBg(articleId: number) {
-    if (activeArticleId.value === articleId) {
-        activeArticleId.value = -1;
+function setHeroBg(categoryId: number) {
+    // Setting default
+    if (activeCategoryId.value === categoryId) {
+        activeCategoryId.value = -1;
         crossFadeBg(defaultBg.value);
         return
     }
-    activeArticleId.value = articleId
+    activeCategoryId.value = categoryId;
 
-    const bgArticle = featureArticles.value.find((a) => a.id === articleId);
-    if (bgArticle) {
-        crossFadeBg(bgArticle.featured_image?.url || null);
+    const bgCategory = categories.value.find((a) => a.id === categoryId);
+    if (bgCategory) {
+        crossFadeBg(bgCategory.featured_image?.url || null);
     }
 }
 function crossFadeBg(src: string | null) {
@@ -309,61 +417,28 @@ function crossFadeBg(src: string | null) {
     setTimeout(() => { heroBg.value = src; bgFading.value = false }, 420)
 }
 
-// ── Categories ────────────────────────────────
-const activeCategory = ref(0)
-const categories = [
-    { label: 'All', icon: '🗺️', bg: 'bg-[#e8f4fd]' },
-    { label: 'Hiking', icon: '🥾', bg: 'bg-[#ddf4f0]' },
-    { label: 'Desert', icon: '🏜️', bg: 'bg-[#fdf3dc]' },
-    { label: 'Forest', icon: '🌲', bg: 'bg-[#dcf4e4]' },
-    { label: 'Camping', icon: '⛺', bg: 'bg-[#fde8dc]' },
-    { label: 'Beach', icon: '🏖️', bg: 'bg-[#e8eafd]' },
-]
 
-// ── Posts ─────────────────────────────────────
-const smallPosts = [
-    { title: 'Trekking the Himalayas: A Solo Adventure', img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', imgAlt: 'Snow-capped Himalayan peaks with trekking trail', category: 'Hiking', date: 'Feb 28, 2025', datetime: '2025-02-28', readTime: '6 min read' },
-    { title: 'Kyoto in Autumn: The Ultimate Temple Trail', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=600&q=80', imgAlt: 'Kyoto temple pathway lined with autumn maples', category: 'Culture', date: 'Jan 15, 2025', datetime: '2025-01-15', readTime: '5 min read' },
-]
 
-// ── Marquee ───────────────────────────────────
-const destinations = ['Maldives', 'Patagonia', 'Kyoto', 'Sahara', 'Santorini', 'Iceland', 'Bali', 'Machu Picchu', 'Amalfi Coast', 'New Zealand']
-
-// ── Gallery ───────────────────────────────────
-const galleryPhotos = [
-    { src: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', alt: 'Swiss Alps panorama at golden hour', span: 'col-span-1 row-span-2' },
-    { src: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80', alt: 'Santorini white domes overlooking the Aegean', span: 'col-span-2 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=600&q=80', alt: 'Bali terraced rice fields at sunrise', span: 'col-span-1 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80', alt: 'Misty forest trail in the Pacific Northwest', span: 'col-span-1 row-span-1' },
-    { src: 'https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80', alt: 'Aurora borealis over an Icelandic snowscape', span: 'col-span-2 row-span-1' },
-]
-
-// Fetch Latest 3 Articles (with caching)
-const config = useRuntimeConfig()
-
-const { data: latestArticles } = await useAsyncData<ILatestArticleResponse>(
-    "latest-articles", // ✅ cache key (important)
+const { data: activitiesData } = await useAsyncData<IActivitiesResponse>(
+    "activities",
     async () => {
-        return await $fetch(`${config.public.backendApi}/api/articles`, {
+        return await $fetch(`${config.public.backendApi}/api/activities`, {
+            headers: {
+                Authorization: `Bearer ${config.public.accessToken}`,
+            },
             params: {
-                sort: ["published_date:desc"], // latest first
-                pagination: { limit: 3 }, // only 3 posts
-                populate: ["featured_image",
-                    // "category"
-                ],
+                "fields[0]": "documentId",
+                "fields[1]": "name",
+
+                "pagination[limit]": 100,
+
+                "populate[icon][fields][0]": "url",
             },
         })
     }
 )
 
-const firstArticle = computed(() => {
-    return latestArticles.value?.data?.[0] ?? null
-})
-
-const nextTwoArticles = computed(() => {
-    return latestArticles.value?.data?.slice(1, 3) ?? []
-})
-
+const activities = computed(() => activitiesData.value?.data ?? []);
 
 
 

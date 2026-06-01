@@ -9,9 +9,8 @@
             ================================================================ -->
         <section class="relative mx-6 md:mx-12 lg:mx-20 mb-20 rounded-3xl overflow-hidden"
             aria-labelledby="newsletter-heading">
-            <img src="https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=1400&q=80"
-                alt="Traveler standing before a breathtaking mountain vista"
-                class="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+            <NuxtImg format="webp" loading="lazy" fetchpriority="low" src="/imgs/sreemangal-tea-garden.webp" alt="Traveler standing before a breathtaking mountain vista"
+            class="absolute inset-0 w-full h-full object-cover" />
             <div class="absolute inset-0 bg-gradient-to-r from-[#1a1a1a]/92 via-[#1a4a6b]/72 to-transparent"
                 aria-hidden="true"></div>
             <div class="relative z-10 px-8 md:px-16 py-16 md:py-20 max-w-lg">

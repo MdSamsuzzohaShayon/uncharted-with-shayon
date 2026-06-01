@@ -1,0 +1,67 @@
+{
+  "name": "editorjs",
+  "version": "0.0.1",
+  "strapi": {
+    "name": "editorjs",
+    "description": "Editor.js custom field plugin",
+    "kind": "plugin"
+  },
+  "scripts": {
+    "build": "npm run build:server && npm run build:admin",
+    "build:server": "tsc -p tsconfig.json",
+    "build:admin": "tsc -p tsconfig.admin.json",
+    "watch": "concurrently \"npm run build:server -- --watch\" \"npm run build:admin -- --watch\""
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@strapi/typescript-utils": "^5.0.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./strapi-admin": {
+      "types": "./dist/admin/index.d.ts",
+      "import": "./dist/admin/index.js",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./strapi-server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "dependencies": {
+    "@editorjs/attaches": "^1.3.2",
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/code": "^2.9.4",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.31.6",
+    "@editorjs/embed": "^2.8.0",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.3",
+    "@editorjs/inline-code": "^1.5.2",
+    "@editorjs/link": "^2.6.2",
+    "@editorjs/list": "^2.0.9",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/nested-list": "^1.4.3",
+    "@editorjs/paragraph": "^2.11.7",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/raw": "^2.5.1",
+    "@editorjs/table": "^2.4.5",
+    "@editorjs/underline": "^1.2.1",
+    "@editorjs/warning": "^1.4.1",
+    "chart.js": "^4.5.1",
+    "editorjs-drag-drop": "^1.1.16",
+    "editorjs-undo": "^2.0.28"
+  }
+}

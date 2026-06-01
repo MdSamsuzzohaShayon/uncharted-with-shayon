@@ -3,12 +3,27 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss', '@nuxt/image'],
-  
+
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false, // optional
+    },
+    {
+      path: '~/components/article',
+      pathPrefix: false, // optional
+    },
+  ],
+
   runtimeConfig: {
     public: {
+      // those variables will be overriden from .env file
       backendApi: '',
+      // GEOAPIFY_API_KEY
       geoapifyApiKey: '',
-      geoapifyAutocompleteUrl: ''
+      geoapifyAutocompleteUrl: '',
+      accessToken: '',
+      fullAccessToken: ''
     },
   },
 
@@ -32,6 +47,47 @@ export default defineNuxtConfig({
           height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
           tagPosition: 'bodyOpen'
         }
+      ]
+    }
+  },
+
+  // nuxt.config.ts
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'editorjs-core': ['@editorjs/editorjs'],
+            'editorjs-tools': [
+              '@editorjs/header',
+              '@editorjs/paragraph',
+              '@editorjs/list',
+              '@editorjs/quote',
+              '@editorjs/image',
+              '@editorjs/code',
+              '@editorjs/table',
+              '@editorjs/warning',
+              '@editorjs/checklist',
+              '@editorjs/delimiter',
+              '@editorjs/marker',
+              '@editorjs/inline-code',
+              '@editorjs/underline',
+              '@editorjs/embed',
+              '@editorjs/link',
+              '@editorjs/raw',
+              '@editorjs/attaches',
+              '@editorjs/nested-list'
+            ]
+          }
+        }
+      }
+    },
+    optimizeDeps: {
+      include: [
+        '@editorjs/editorjs',
+        '@editorjs/header',
+        '@editorjs/paragraph'
+        // Add frequently used tools
       ]
     }
   }
