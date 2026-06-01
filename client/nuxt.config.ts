@@ -90,5 +90,13 @@ export default defineNuxtConfig({
         // Add frequently used tools
       ]
     }
+  },
+  routeRules: {
+    '/': {
+      swr: 60, // cache for 60 seconds
+      cache: {
+        maxAge: 60,
+      }
+    }
   }
 })
