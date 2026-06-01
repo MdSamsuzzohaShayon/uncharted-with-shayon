@@ -1,4 +1,4 @@
-name: Deploy Strapi
+name: Deploy Strapi Backend
 
 on:
   push:
@@ -23,14 +23,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
 
-          cd /opt/uncharted/server
+          set -e
 
-          git pull origin master
+          cd /home/shayon/uncharted-with-shayon/server
 
-          docker compose down
+          docker compose pull
 
-          docker compose build
-
-          docker compose up -d
+          docker compose up -d --remove-orphans
 
           EOF
