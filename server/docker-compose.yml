@@ -1,6 +1,6 @@
 services:
   strapi_backend:
-    image: ghcr.io/mdsamsuzzohashayon/uncharted-strapi:latest
+    image: ghcr.io/mdsamsuzzohashayon/uncharted-strapi-backend:latest
 
     container_name: strapi_backend
 
