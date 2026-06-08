@@ -171,5 +171,3 @@ npm run dev               # Start development server
 * Dynamic routing with **SEO-friendly URLs**
 * Gallery & media management
 * Configurable environment variables for easy deployment
-
----
